@@ -15,6 +15,9 @@ namespace WindowsFormsApp2
 {
     public partial class Form2 : Form
     {
+        //--Variables de campo. 
+        #region
+
         string txtOrigen = string.Empty;
         string txtDestino = string.Empty;
 
@@ -48,17 +51,65 @@ namespace WindowsFormsApp2
 
         string nombreImpuesto = string.Empty;
         
-        string datosObjeto = string.Empty;
+        string datosObjeto = string.Empty; // OBJETO DONDE SE DEPOCITA EL RESULTADO FINAL
+        /// </summary>
 
         string impuestoLiquidar = string.Empty;
 
-        string directorioOrigen = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
-        string directorioDestino = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+        string directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba"; 
+                                   // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
+        string directorioDestino = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent"; // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+
+        #endregion //--Variables de campo. 
 
         public Form2()
         {
             InitializeComponent();
             habilitarGenerar();
+        }
+
+        // --- configuracion Datos Base: 
+
+
+        private void button2_Click(object sender, EventArgs e) // Boton Origen.
+        {
+
+            //Ñ 11
+            #region
+
+            //Console.WriteLine("ver el path " + Path.GetDirectoryName(this.Origen.InitialDirectory));
+
+            /* --- El valor de busqueda se encuentra en:  "Form2.Designer.cs"
+             
+                     DialogResult se puede usar desde el código que 
+                     mostró un cuadro de diálogo para determinar si 
+                     un usuario aceptó ( true ) o canceló
+                     ( false ) el cuadro de diálogo.
+            
+
+            Ñ 11 -IMPORTANTE: 
+
+                La ruta para el Showdialog estaba mal escrita,
+            asi que no llevaba a ningun lado,Mientras esto permaneció así 
+            siempre ABRIA LA MSIMA VENTANA, aparentemente por defecto quizá 
+            la ultima que funcionó en la busqueda. 
+            
+            */
+            #endregion
+
+            Origen.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";// Ñ:)
+
+            DialogResult dr = this.Origen.ShowDialog();
+
+            txtOrigen = this.Origen.FileName; // TxtOrigen  toma el valor del .txt elegido en la ventana emergente: 
+
+            this.habilitarGenerar(); //mostrar Path por pantalla y habilitar boton "generar"
+        }
+
+        private void habilitarGenerar()
+        {
+            this.txtArchivoOrigen.Text = txtOrigen;  // vuelca le valor de txtorigen (el path del txt que se clickea en la ventana                                             emergente (Boton Origen) y lo muestra por pantalla en el cuadro de texto.       
+            this.Generar.Enabled = (txtOrigen != string.Empty); //( impuesto esta bueno: boton true, si txt es true ;)  )
         }
 
         private void button1_Click(object sender, EventArgs e) //Ñ4 boton Generar. 
@@ -67,23 +118,21 @@ namespace WindowsFormsApp2
             bool seguir = false;
             try
             {
-
-                
                 int cantidad = Convert.ToInt32(this.txtCantidad.Text);
                 seguir = true;
             }
             catch (Exception) { }
 
             if (seguir)
-            {                
+            {
                 impuesto = this.Impuesto.Text;
-                txtDestino = this.Origen.FileName; //Ñ3 Objeto del formulario -button.text("Origen") : ej:  \\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\Edificado\20150519-3-CO.TXT
+                txtDestino = this.Origen.FileName; //Ñ 3 Objeto del formulario -button.text("Origen") (tipo OpenFileDialog- ventana emergente -) : da x ej:  \\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\Edificado\20150519-3-CO.TXT
 
-                Console.WriteLine("------------> 1: " + txtDestino );
+      
+                txtDestino = txtDestino.Replace(this.Origen.InitialDirectory, ""); //Ñ 5:  quedaría : "\Edificado\20150519-3-CO.TXT" 
 
-                txtDestino = txtDestino.Replace(this.Origen.InitialDirectory, ""); //Ñ5:  quedaría : "\Edificado\20150519-3-CO.TXT" 
+             
 
-                Console.WriteLine("------------> 2: " + txtDestino);
                 this.procesar();
             }
             else
@@ -92,14 +141,16 @@ namespace WindowsFormsApp2
 
                 MessageBox.Show("Ingrese la cantidad de suscripciones a procesar.", "Boleta Electrónica");
             }
-        }        
+        }
+
+
 
         private void procesar()
         {
-            int cantidadAleer = Convert.ToInt32(this.txtCantidad.Text);
+            int cantidadAleer = Convert.ToInt32(this.txtCantidad.Text); // "Cant. Suscripciones"
 
             //barras de carga-------------------------------- :3
-                 this.barraGenerados.Maximum = cantidadAleer;
+            this.barraGenerados.Maximum = cantidadAleer;
                  this.barraLeidos.Maximum = cantidadAleer;
             //-----------------------------------------------
 
@@ -115,43 +166,59 @@ namespace WindowsFormsApp2
              
             string datosTodosObjetos = string.Empty;
             int cantidadCorte = Convert.ToInt32(this.txtCantidadCorte.Text); //Ñ7 -  "150000"
-            int cantidadArchivosGenerados = 1;
+            int cantidadArchivosGenerados = 1; //incrementa en linea 194
 
-            string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //Ñ txtDestino a estas alturas vale:(por ejemplo) "\Edificado\20150519-3-CO.TXT" Viene desde : " private void button1_Click"
 
-            fechaOpcion = this.FechaOpcion.Value.ToLongDateString().Replace(",", ""); //Ñ1: pase de valor de fecha en formulario a codigo. 
-            fechaVencimiento = fechaOpcion;
+            string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //Ñ txtDestino a estas alturas vale:(por ejemplo) "\Edificado\20150519-3-CO.TXT" Viene desde : " private void button1_Click" (viene de la ventana emergente) 
 
-            StreamWriter sw = new System.IO.StreamWriter(nombreArchivoGenerado); //Ñ2 nombreArchivogenerado es - para estas alturas - un path!! 
-          
-            
+            fechaOpcion = this.FechaOpcion.Value.ToLongDateString().Replace(",", ""); //Ñ1: pase de valor de fecha en formulario a codigo. "FechaOpcion" es el objeto. 
+            fechaVencimiento = fechaOpcion;// ¿porqué no lo pasa directamente a -fechaVencimiento- ?
+
+
+            // StreamWriter!!! ----------------------------
+
+            StreamWriter sw = new System.IO.StreamWriter(nombreArchivoGenerado); //Ñ2 nombreArchivogenerado es - para estas alturas - un path!!    
             StreamWriter swResultados = new System.IO.StreamWriter(txtDestino + "-Informe.txt");
             
             //genero reporte.
             swResultados.Write("Se generearon los siguientes archivos:");
             swResultados.WriteLine();
-            swResultados.Write(string.Format("Archivo ** {0} ** ", nombreArchivoGenerado));
+            swResultados.Write(string.Format("Archivo ** {0} ** ", nombreArchivoGenerado)); //Ñ 9 y "Con 11401 suscripciones y 5983 mails para enviar" donde está?
 
-            
 
-            this.EscribirCabecera(sw);
+            this.EscribirCabecera(sw); //Ñ 10 va al check box a ver si agrega la cabecerao no:  "email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento""
 
-            System.IO.StreamReader file = new System.IO.StreamReader(txtOrigen);
+          
+            System.IO.StreamReader file = new System.IO.StreamReader(txtOrigen); //el StreamReader toma por argumento la ubicacion de un txt. Un path. (TxtOrigen tomo ese valor en: el boton Origen) : ""\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\Automotores\20150422-3-dt.TXT"
 
-            while ((line = file.ReadLine()) != null)
+            /*
+            el objeto "file", de tipo streamReader: toma "txtOrigen" como argumento: 
+            por esto en el metodo ReadLine devuleve linea a linea
+            el contenido del TxT (aunque solo muestra el mail en la impreison por pantalla) 
+             
+             */
+
+
+            while ((line = file.ReadLine()) != null) //  
             {
-                this.LeerLinea(line);
                 
+
+                this.LeerLinea(line); // acá se envia el contenido de "line" a un método donde se trabaja con el combobox de "tipo de impuesto" 
+                                      // alli con el método "TrimEnd(' ')"    se seleccionan diferentes partes de la linea del Txt. 
+
+              
+
                 //veo si es la primer linea.
-                if (mailAux == string.Empty)
+                if (mailAux == string.Empty) //(mailAux) String declarado en primeras Lineas. [Hasta acá siempre lo recibe vacio la primera vez]
                 {
-                    mailAux = mail;
+                    mailAux = mail; //(mail) String declarado en primeras Lineas; vuelve con valor desde "LeerLinea(Line)".
                     razonsocialAux = razonsocial;
                     cuitAux = cuit;
                     //ultimoMail = mail;
                 }
 
                 this.ArmarDatosMail();
+
                 
                 //veo si hay que agrupar el mail o no.
                 if ((mail != mailAux) || (razonsocial != razonsocialAux))// || (cuit != cuitAux))
@@ -324,54 +391,45 @@ namespace WindowsFormsApp2
             MessageBox.Show(mensaje);
         }
 
-        private void EscribirCabecera(StreamWriter pSw)
-        {
-            if (this.ConCabecera.Checked)
-            {
-                pSw.Write("email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento");
-                pSw.WriteLine();
-            }
-            
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            DialogResult dr = this.Origen.ShowDialog();
-            txtOrigen = this.Origen.FileName;
-            this.habilitarGenerar();
-        }        
-
-        private void habilitarGenerar()
-        {
-            this.txtArchivoOrigen.Text = txtOrigen;            
-            this.Generar.Enabled = (txtOrigen != string.Empty);
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            
-        }
+    
 
         private void Impuesto_SelectedIndexChanged(object sender, EventArgs e)
         {
-            directorioOrigen = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
-            directorioDestino = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+
+            Console.WriteLine("acá es 1) " + directorioOrigen);
+
+            directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // Ñ 11 paarentemente si se escribe mal la direccion de origen, y esta no daa ningun lado lleva a la ultima direccion que funcionó en la bsuqueda.
+
+                              // Original  -> @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
+
+            directorioDestino = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\";
+
+                               // Original  ->@"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+
             List<string> cuotas;
+
+            
+
             switch (this.Impuesto.SelectedIndex)
             {
                 case 0:
                 {
-                    directorioOrigen += @"Automotores\";
-                    directorioDestino += @"Automotores\";
-                    impuestoLiquidar = "1";
+                        directorioOrigen += @"Automotores\";
+                        directorioDestino += @"Automotores\";
+
+                        Console.WriteLine("acá es 2) " + directorioOrigen);
+
+                        impuestoLiquidar = "1";
                     nombreImpuesto = "Automotor";
                     txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D1%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
-                    break;
+                                  
+
+                        break;
                 }
                 case 1:
                 {
-                    directorioOrigen += @"Embarcaciones\";
-                    directorioDestino += @"Embarcaciones\";
+                    directorioOrigen += @"Automotores\"; //@"Embarcaciones\";
+                    directorioDestino += @"Automotores\"; //@"Embarcaciones\";
                     nombreImpuesto = "Embarcaciones";
                     impuestoLiquidar = "3";
                     txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D3%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
@@ -380,35 +438,35 @@ namespace WindowsFormsApp2
                 }
                 case 2:
                 {
-                    directorioOrigen += @"Edificado\";
-                    directorioDestino += @"Edificado\";
-                    nombreImpuesto = "Edificado";
+                    directorioOrigen += @"Automotores\"; //@"Edificado\";
+                    directorioDestino += @"Automotores\"; //@"Edificado\";
+                        nombreImpuesto = "Edificado";
                     impuestoLiquidar = "0";
                     txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D0%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
                     break;
                 }
                 case 3:
                 {
-                    directorioOrigen += @"Baldio\";
-                    directorioDestino += @"Baldio\";
-                    nombreImpuesto = "Baldio";
+                    directorioOrigen += @"Automotores\"; //@"Baldio\";
+                        directorioDestino += @"Automotores\"; //@"Baldio\";
+                        nombreImpuesto = "Baldio";
                     impuestoLiquidar = "0";
                     txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D0%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
                     break;
                 }
                 case 4:
                 {
-                    directorioOrigen += @"Rural\";
-                    directorioDestino += @"Rural\";
-                    impuestoLiquidar = "0";
+                    directorioOrigen += @"Automotores\"; //@"Rural\";
+                        directorioDestino += @"Automotores\"; //@"Rural\";
+                        impuestoLiquidar = "0";
                     nombreImpuesto = "Rural";
                     txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D0%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
                     break;
                 }
                 case 5:
                 {
-                    directorioOrigen += @"Complementario\";
-                    directorioDestino += @"Complementario\";
+                    directorioOrigen += @"Automotores\"; //@"Complementario\";
+                    directorioDestino += @"Automotores\"; //@"Complementario\";
                     nombreImpuesto = "Complementario";
                     impuestoLiquidar = "10";
                     txturl.Text = "https://www.arba.gov.ar/aplicaciones/LiqPredet.asp?imp=10&Fame=NO&origen=WEB&op=IIC";
@@ -421,8 +479,13 @@ namespace WindowsFormsApp2
                     break;
                 }
             }
-            this.Origen.InitialDirectory = directorioOrigen;                
+
+            Console.WriteLine("acá es 3) " + directorioOrigen);
+
+            this.Origen.InitialDirectory = directorioOrigen;  // IMPORTANTE : Origen es de tipo openFileDialog. Asi q posee el método InitialDirectory, que carga la busqueda principal de la ventana emergente del boton "origen"  abriendo una ventana diferente segun cual sea el impuesto elegido.             
         }
+       
+        
         private void LeerLinea(string line)
         {
             switch (this.Impuesto.SelectedIndex)
@@ -430,23 +493,57 @@ namespace WindowsFormsApp2
                 case 0:
                 case 1:
                     {
+
+                        /*The String.TrimEnd method removes characters 
+                         * from the end of a string, 
+                         * creating a new string object
+                        ------
+                        "String.Substring"  toma el primer parametro 
+                        y parte desde ese caracter, 
+                        por distancia igual al segundo 
+                        parametro y lo devuleve. 
+
+                        ---------
+
+                        el archivo de texto tiene las columnas separadas
+                        por las distancias marcadas en el TrimEnd.
+
+                        */
+
                         mail = line.Substring(0, 255).TrimEnd(' ').ToLower();
+                             Console.WriteLine("------------->" + mail);
                         objeto = line.Substring(255, 11).TrimEnd(' ');
+                             Console.WriteLine("------------->" + objeto);
                         objetoFormateado = objeto.ToUpper();
+                             Console.WriteLine("------------->" + objetoFormateado);
                         razonsocial = line.Substring(266, 60).TrimEnd(' ');
+                             Console.WriteLine("------------->" + razonsocial);
                         porcentaje = string.Empty;
                         fechaVencimiento = Convert.ToDateTime(line.Substring(334, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
+                             Console.WriteLine("------------->" + fechaVencimiento);
                         fechaVencimientoNumero = line.Substring(334, 10).TrimEnd(' ');
+                             Console.WriteLine("------------->" + fechaVencimientoNumero);
                         montoCuota = line.Substring(345, 17).Trim(' ');
+                             Console.WriteLine("------------->" + montoCuota);
                         montoAnual = line.Substring(362, 16).Trim(' ');
+                             Console.WriteLine("------------->" + montoAnual);
+
+
                         //codigoElectronico = line.Substring(378, 14).Trim(' ');
-                        debitoCredito = line.Substring(392, 1).Trim(' ');
+                       /* debitoCredito = line.Substring(392, 1).Trim(' ');
+                            Console.WriteLine("------------->" + debitoCredito);
                         buenContribuyente = line.Substring(393, 1).Trim(' ');
+                            Console.WriteLine("------------->" + buenContribuyente);
                         cuit = line.Substring(394, 11).TrimEnd(' ');
+                            Console.WriteLine("------------->" + cuit);
+
                         porcentaje = "20";
                         anio = "2020";
-                        cuota = "3";
+                        cuota = "3";*/
+
                         break;
+
+
                     }
                 case 2:
                 case 3:
@@ -491,7 +588,6 @@ namespace WindowsFormsApp2
             razonsocial = myTI.ToTitleCase(razonsocial);
 
         }
-
 
         private void LeerLineaNuevo(string line)
         {            
@@ -542,6 +638,9 @@ namespace WindowsFormsApp2
             razonsocial = myTI.ToTitleCase(razonsocial);
             
         }
+
+
+        //---------------- x ver. 
 
         private string formatearObjeto(string pObjeto)
         {
@@ -660,6 +759,8 @@ namespace WindowsFormsApp2
                     }
             }
 
+            //MAIN!!!     (DONDE ESTAN LSO TXT QUE TIENEN DISCRIMINADO EL DEBITO O CREDITO??)
+
             if (this.Impuesto.SelectedIndex == 5)
             {
                 datosObjeto = "<tr class='datos'>";
@@ -695,6 +796,17 @@ namespace WindowsFormsApp2
             }
 
         }
+
+        private void EscribirCabecera(StreamWriter pSw)
+        {
+            if (this.ConCabecera.Checked)
+            {
+                pSw.Write("email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento");
+                pSw.WriteLine();
+            }
+
+        }
+
     }
 }
 

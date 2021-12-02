@@ -63,8 +63,7 @@
             // 
             // Origen
             // 
-            this.Origen.InitialDirectory = "\\\\arba.gov.ar\\DE\\GGTI\\Gerencia de Produccion\\Mantenimiento\\Boleta Electronica\\Ori" +
-    "gen";
+            this.Origen.InitialDirectory = "C:\\Users\\oscar.avendano\\Desktop\\aplicacion Campaña\\Archivos de Prueba\\sehent";
             // 
             // button2
             // 
@@ -270,7 +269,6 @@
             this.Controls.Add(this.Generar);
             this.Name = "Form2";
             this.Text = "Generar bases para campaña por mail";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
