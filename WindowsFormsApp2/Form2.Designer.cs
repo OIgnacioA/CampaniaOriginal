@@ -62,8 +62,9 @@
             this.Generar.Click += new System.EventHandler(this.button1_Click);
             // 
             // Origen
-            // 
-            this.Origen.InitialDirectory = "C:\\Users\\oscar.avendano\\Desktop\\aplicacion Campaña\\Archivos de Prueba\\sehent";
+            // direccion por defecto del boton ´origen´ cuando no se ha elegido un tipo de impuesto en el combobox. 
+
+            this.Origen.InitialDirectory = "C:\\Users\\oscar.avendano\\Desktop\\aplicacion Campaña\\Archivos de Prueba\\sehent\\";
             // 
             // button2
             // 
