@@ -19,8 +19,8 @@ namespace WindowsFormsApp2
         #region
 
         string txtOrigen = string.Empty;
-        string txtDestino = string.Empty;
-       
+        string txtDestino = string.Empty;//txtDestino:  se usa para tener el nombre del archivo original presnete, y usarlo para crear el nuevo con ese nombre incluido.  ej  en "nombreArchivoGenerado"
+
 
         string mailAux = string.Empty;
         string razonsocialAux = string.Empty;
@@ -57,9 +57,9 @@ namespace WindowsFormsApp2
 
         string impuestoLiquidar = string.Empty;
 
-        string directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; 
-                                   // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
-        string directorioDestino = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+        string directorioOrigen = "";       //@"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; 
+                                           // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
+        string directorioDestino = "";    //@"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // @"\\arba.gov.ar\DE\GGTI                                   \Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
 
         #endregion //--Variables de campo. 
 
@@ -172,7 +172,7 @@ namespace WindowsFormsApp2
 
             // Original  -> @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
 
-            directorioDestino = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\";
+            directorioDestino = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\Destinox\";
 
             // Original  ->@"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
 
@@ -267,7 +267,6 @@ namespace WindowsFormsApp2
                  this.barraLeidos.Maximum = cantidadAleer;
             //-----------------------------------------------
 
-
             int counter = 0;
             int contador = 0;
             int distintos = 0;
@@ -279,59 +278,38 @@ namespace WindowsFormsApp2
 
             string Path = string.Empty; 
 
-
             string datosTodosObjetos = string.Empty;
             int cantidadCorte = Convert.ToInt32(this.txtCantidadCorte.Text); //Ñ7 -  "150000"
             int cantidadArchivosGenerados = 1; //incrementa en linea 367
 
-            // NOmbre del archivo .CSV:
-
-            Console.WriteLine("Rastreo------------1" + txtDestino); //"SISTE.BAL.C012021.CO - copia(20).txt"
-
-            string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //Ñ  txtDestino a estas alturas vale:(por ejemplo) "\Edificado\20150519-3-CO.TXT" Viene desde : " private void button1_Click" (viene de la ventana emergente)
-
-          
-
             fechaOpcion = this.FechaOpcion.Value.ToLongDateString().Replace(",", ""); //Ñ1: pase de valor de fecha en formulario a codigo. Objeto : "FechaOpcion"
             fechaVencimiento = fechaOpcion;// ¿porqué no lo pasa directamente a -fechaVencimiento- ?
 
-            /*string totoro = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\Automotores\SISTE.BAL.C012021.CO - copia(20).txt-Parte-1.docx";*/
 
 
+            // NOmbre del archivo .CSV:
+
+               string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //nombreDelArchivo.txt - Parte - 1.csv"
+                    StreamWriter sw = new StreamWriter(nombreArchivoGenerado); 
+
+
+            //reporte; 
             #region
-
-            /* StreamWriter declara el lugar donde 
-                    va a escribir la data en sus parametros, 
-                    Luego el Objeto declarado como tal
-                    tiene el método ".Write()" en sus parametros 
-                    pasa el textoa  escribir.  
-             */
-            #endregion
-
-            Console.WriteLine("Rastreo------------2" + nombreArchivoGenerado); //"SISTE.BAL.C012021.CO - copia(20).txt-Parte-1.csv"
-
-
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(nombreArchivoGenerado); //Ñ2 nombreArchivogenerado:  es - para estas alturas - un path!  txtDestino (viene de boton Generar) + cantidadArchivosGenerados  = (ej) "copia.txt-Parte-1.csv" es la presencia del ".cvs" en el path, lo que CREA este archivo en el destino. 
 
             Path = directorioOrigen + "informe.txt"; 
 
-
             StreamWriter SWinforme = new StreamWriter(Path);
 
-          
-
-            //genero reporte.
             SWinforme.Write("Se generearon los siguientes archivos:");
             SWinforme.WriteLine();
-            SWinforme.Write(string.Format("Archivo ** {0} ** ", nombreArchivoGenerado)); 
+            SWinforme.Write(string.Format("Archivo ** {0} ** ", nombreArchivoGenerado));
+
+            #endregion   
 
 
+           this.EscribirCabecera(sw); //  agrega la cabecera o no:  "email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento""
 
-
-            this.EscribirCabecera(sw); //Ñ 10 va al check box a ver si agrega la cabecera o no:  "email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento""
-
-            
-            System.IO.StreamReader file = new System.IO.StreamReader(txtOrigen);
+           StreamReader file = new StreamReader(txtOrigen); //fullname del archivo original
 
             //StreamReader
             #region
@@ -347,19 +325,17 @@ namespace WindowsFormsApp2
             #endregion
 
 
-            while ((line = file.ReadLine()) != null) //  
+            while ((line = file.ReadLine()) != null) 
             {
-                
 
-                this.LeerLinea(line); // acá se envia el contenido de "line" a un método donde se trabaja con el combobox de "tipo de impuesto" 
-                                      // alli con el método "TrimEnd(' ')"    se seleccionan diferentes partes de la linea del Txt. 
+                this.LeerLinea(line); /* acá se envia el contenido de "line" a un método donde trabaja el combobox "IMPUESTO" 
+                                       alli con el método "TrimEnd(' ')" se seleccionan diferentes partes de la linea del Txt.*/
 
               
 
-                //veo si es la primer linea.
                 if (mailAux == string.Empty) //(mailAux) String declarado en primeras Lineas. [Hasta acá siempre lo recibe vacio la primera vez]
                 {
-                    mailAux = mail; //(mail) String declarado en primeras Lineas; vuelve con su valor desde "LeerLinea(Line)".
+                    mailAux = mail; //(mail) String declarado en principio de programa; vuelve con su valor desde "LeerLinea(Line)".
                     razonsocialAux = razonsocial;
                     cuitAux = cuit;
                     //ultimoMail = mail;
@@ -516,77 +492,11 @@ namespace WindowsFormsApp2
             
         }
 
-       
-
-        private void InformarArchivosGenerados()
-        {
-            DirectoryInfo di = new DirectoryInfo(".\\");     
-            
-
-            string zip = string.Format("{0}.zip", txtDestino); // txtdestino = SISTE.BAL.C012021.CO - copia(20).txt
 
 
-            FileInfo[] archivos = di.GetFiles(txtDestino + "*");
-
-            StreamReader r;
-
-            using (FileStream zipToOpen = new FileStream(zip, FileMode.Create))
-            {
-                #region
-                /* FileStream fs = File.Create(path)) <---> FileStream SourceStream = File.Open(filename, FileMode.OpenOrCreate)
-                       
-                       CREA EL ACCESO - PATH - A  ARCHIVOS DONDE ESCRIBIR.(el primer argumento: "ZIP")
-                       dede aqui zipToOpen tiene una direccion donde va a poder volcar texto.
-
-                  EL ZipArchiveMode.Update:  Especifica valores para interactuar
-                       con las entradas del archivo zip, en el UPDATE Se permiten 
-                       operaciones de lectura
-                       y escritura para entradas de archivo.
-
-                  ZipArchive.CreateEntry : Agregar nuevos archivos a un archivo zip existente.
 
 
-                 */
-                #endregion
-                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))  
-                {
-                    foreach (FileInfo fileToCompress in archivos)
-                    {                        
-                            ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name); 
-                        using (StreamWriter writer = new StreamWriter(readmeEntry.Open())) //la ruta de escritura del StramWrites serán los NOMBRES que lleguen del foreach. 
-                            {
-                                r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
-                                writer.WriteLine(r.ReadToEnd());
-                                r.Close();
-                                r.Dispose();
-                            }                     
-                    }
-                }
-            }
-            foreach (FileInfo fileToCompress in archivos)
-            {
-                File.Delete(fileToCompress.FullName);
-            }
 
-
-            string mensaje = string.Format("Se generó el archivo {0}\\{1} con los datos para el envío de las campañas. Colocar dicho archivo en {2} y avisar a Mesa de ayuda.", di.FullName, zip, directorioDestino);
-            MessageBox.Show(mensaje);
-        }
-
-        private string formatearCuit(string pCuit)
-        {
-            string cuitFormateado = string.Empty;
-            if (pCuit.Length == 11)
-            {
-                string primeraParte = pCuit.Substring(0, 2);
-                string dni = pCuit.Substring(2, 8);
-                string digito = pCuit.Substring(10, 1);
-                cuitFormateado = string.Format("{0}-{1}-{2}", primeraParte, dni, digito);
-            }
-            return cuitFormateado;
-        }
-       
-        
         private void LeerLinea(string line)
         {
             switch (this.Impuesto.SelectedIndex)
@@ -594,57 +504,47 @@ namespace WindowsFormsApp2
                 case 0:
                 case 1:
                     {
+                        //String.TrimEnd - String.Substring
+                        #region
 
                         /*The String.TrimEnd method removes characters 
                          * from the end of a string, 
                          * creating a new string object
+                         
                         ------
+
                         "String.Substring"  toma el primer parametro 
                         y parte desde ese caracter, 
                         por distancia igual al segundo 
                         parametro y lo devuleve. 
 
-                        ---------
+                        ------
 
                         el archivo de texto tiene las columnas separadas
                         por las distancias marcadas en el TrimEnd.
 
                         */
+                        #endregion
 
                         mail = line.Substring(0, 255).TrimEnd(' ').ToLower();
-                            // Console.WriteLine("------------->" + mail);
                         objeto = line.Substring(255, 11).TrimEnd(' ');
-                            // Console.WriteLine("------------->" + objeto);
                         objetoFormateado = objeto.ToUpper();
-                            // Console.WriteLine("------------->" + objetoFormateado);
                         razonsocial = line.Substring(266, 60).TrimEnd(' ');
-                            // Console.WriteLine("------------->" + razonsocial);
                         porcentaje = string.Empty;
                         fechaVencimiento = Convert.ToDateTime(line.Substring(334, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
-                            // Console.WriteLine("------------->" + fechaVencimiento);
                         fechaVencimientoNumero = line.Substring(334, 10).TrimEnd(' ');
-                            // Console.WriteLine("------------->" + fechaVencimientoNumero);
                         montoCuota = line.Substring(345, 17).Trim(' ');
-                            // Console.WriteLine("------------->" + montoCuota);
                         montoAnual = line.Substring(362, 16).Trim(' ');
-                            // Console.WriteLine("------------->" + montoAnual);
 
+                        /*codigoElectronico = line.Substring(378, 14).Trim(' ');
+                          debitoCredito = line.Substring(392, 1).Trim(' ');
+                          buenContribuyente = line.Substring(393, 1).Trim(' ');
+                          cuit = line.Substring(394, 11).TrimEnd(' ');
 
-                        //codigoElectronico = line.Substring(378, 14).Trim(' ');
-                       /* debitoCredito = line.Substring(392, 1).Trim(' ');
-                            Console.WriteLine("------------->" + debitoCredito);
-                        buenContribuyente = line.Substring(393, 1).Trim(' ');
-                            Console.WriteLine("------------->" + buenContribuyente);
-                        cuit = line.Substring(394, 11).TrimEnd(' ');
-                            Console.WriteLine("------------->" + cuit);
-
-                        porcentaje = "20";
-                        anio = "2020";
-                        cuota = "3";*/
-
+                          porcentaje = "20";
+                          anio = "2020";
+                          cuota = "3";*/
                         break;
-
-
                     }
                 case 2:
                 case 3:
@@ -685,13 +585,14 @@ namespace WindowsFormsApp2
 
                     break;
             }
+
             TextInfo myTI = CultureInfo.CurrentCulture.TextInfo;
             razonsocial = myTI.ToTitleCase(razonsocial);
 
         }
 
         private void LeerLineaNuevo(string line)
-        {            
+        {
             mail = line.Substring(0, 120).TrimEnd(' ').ToLower();
             objeto = line.Substring(120, 11).TrimEnd(' ');
             objetoFormateado = this.formatearObjeto(objeto);
@@ -733,18 +634,105 @@ namespace WindowsFormsApp2
                 default:
                     break;
             }
-            
+
 
             TextInfo myTI = CultureInfo.CurrentCulture.TextInfo;
             razonsocial = myTI.ToTitleCase(razonsocial);
-            
+
         }
 
+        private void InformarArchivosGenerados()
+        {
+            #region
+            /*Se tiene contacto con la carpeta donde se va a deja rel archivo Zip.  "DirectoryInfo"
+               * Se lo crea, y agrega a esta carpeta.                               "zip = string.Format("{0}.zip", txtDestino)"
+               * se toma el nombre para buscarlo con un foreach. 
+               * Hay acciones de apertura y escritura de zip.
+               * ...
+               * Creado el archivo, da mensaje por pantalla. 
+
+
+
+            txtDestino:  se usa para tener el nombre del archivo original presnete, 
+                           y usarlo para crear el nuevo con ese nombre incluido.  
+             Carpeta destino: di 
+
+             */
+
+            #endregion
+
+            DirectoryInfo di = new DirectoryInfo(".\\"); //la carpeta de guardado de los archivos es la carpeta POR DEFECTO "Release" dentro del proyecto. 
+            txtDestino = "archivin1.txt";
+
+
+            FileInfo[] archivos = di.GetFiles(txtDestino + "*"); // (carga  archivos desde origen "Release") ej: '.txt-Parte-1.csv' ( y sólo los que se llamen como "el modleo d ebusqueda"
+
+
+
+            string zip = string.Format("{0}.zip", txtDestino); // destino =  al txt elegido : 'try(20).txt'
+
+            StreamReader r;
+
+            using (FileStream zipToOpen = new FileStream(zip, FileMode.Create)) //creacion de zip
+            {
+               
+                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))  //apertura y escritura
+                {
+
+                    foreach (FileInfo fileToCompress in archivos) //los 'archivos' son los que haya en la carpeta 'di' (entra aqui una sola vez) 
+                    {                        
+                            ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name); //abre el zip, Updatea cada archivo del array presente dentro del zip
+                       
+                        using (StreamWriter writer = new StreamWriter(readmeEntry.Open())) //la ruta de escritura del StreamWriter serán los NOMBRES que lleguen del foreach. 
+                            {
+                                r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
+                                writer.WriteLine(r.ReadToEnd());
+                                r.Close();
+                                r.Dispose();
+                        }                     
+                    }
+                }
+            }
+            foreach (FileInfo fileToCompress in archivos)
+            {
+                File.Delete(fileToCompress.FullName);
+            }
+
+
+            string mensaje = string.Format("Se generó el archivo {0}\\{1} con los datos para el envío de las campañas. Colocar dicho archivo en {2} y avisar a Mesa de ayuda.", di.FullName, zip, directorioDestino);
+            MessageBox.Show(mensaje);
+        }
+
+        private string formatearCuit(string pCuit)
+        {
+            string cuitFormateado = string.Empty;
+            if (pCuit.Length == 11)
+            {
+                string primeraParte = pCuit.Substring(0, 2);
+                string dni = pCuit.Substring(2, 8);
+                string digito = pCuit.Substring(10, 1);
+                cuitFormateado = string.Format("{0}-{1}-{2}", primeraParte, dni, digito);
+            }
+            return cuitFormateado;
+        }
+
+        
         private void habilitarGenerar()
         {
             this.txtArchivoOrigen.Text = txtOrigen;  // vuelca le valor de txtorigen (el path del txt que se clickea en la ventana                                                emergente (Boton Origen) y lo muestra por pantalla en el cuadro de texto.       
             this.Generar.Enabled = (txtOrigen != string.Empty); //( impuesto esta bueno: boton true, si txt es true ;)  )
         }
+
+        private void EscribirCabecera(StreamWriter pSw)
+        {
+            if (this.ConCabecera.Checked)
+            {
+                pSw.Write("email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento");
+                pSw.WriteLine();
+            }
+
+        }
+
 
         //---------------- x ver. 
 
@@ -903,16 +891,7 @@ namespace WindowsFormsApp2
 
         }
 
-        private void EscribirCabecera(StreamWriter pSw)
-        {
-            if (this.ConCabecera.Checked)
-            {
-                pSw.Write("email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento");
-                pSw.WriteLine();
-            }
-
-        }
-
+      
     }
 }
 
