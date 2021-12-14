@@ -38,7 +38,7 @@ namespace WindowsFormsApp2
         string fechaVencimientoNumero = string.Empty;
         string montoCuota = string.Empty;
         string montoAnual = string.Empty;
-        //string codigoElectronico = string.Empty;
+        string codigoElectronico = string.Empty;
         string debitoCredito = string.Empty;
         string buenContribuyente = string.Empty;
         string cuit = string.Empty;
@@ -60,6 +60,10 @@ namespace WindowsFormsApp2
         string directorioOrigen = "";       //@"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; 
                                            // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
         string directorioDestino = "";    //@"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // @"\\arba.gov.ar\DE\GGTI                                   \Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+
+
+        string Variable = string.Empty;
+
 
         #endregion //--Variables de campo. 
 
@@ -89,7 +93,7 @@ namespace WindowsFormsApp2
                      ( false ) el cuadro de diálogo.
             
 
-            Ñ 11 -IMPORTANTE: 
+            Ñ 12 -IMPORTANTE: 
 
                 La ruta para el Showdialog estaba mal escrita,
             asi que no llevaba a ningun lado,Mientras esto permaneció así 
@@ -160,15 +164,17 @@ namespace WindowsFormsApp2
 
         private void Impuesto_SelectedIndexChanged(object sender, EventArgs e)
         {
+
+            #region 
             /* - Al elegir una de las opciones de impuesto del combobox
                     toma la direccion de la carpeta dnd se encuentran los 
                     archivos relacionados a ese impuesto. 
             
                - Toma la direccion base "directorioOrigen" y agrega la 
                      carpeta ej: @Automotores*/
+            #endregion
 
-
-            directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // Ñ 11 paarentemente si se escribe mal la direccion de origen, y esta no daa ningun lado lleva a la ultima direccion que funcionó en la bsuqueda.
+            directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // Ñ 11 paarentemente si se escribe mal la direccion de origen, y esta no da a ningun lado lleva a la ultima direccion que funcionó en la bsuqueda.
 
             // Original  -> @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
 
@@ -263,13 +269,14 @@ namespace WindowsFormsApp2
             int cantidadAleer = Convert.ToInt32(this.txtCantidad.Text); // "Cant. Suscripciones"
 
             //barras de carga-------------------------------- :3
+            this.barraLeidos.Maximum = cantidadAleer;
             this.barraGenerados.Maximum = cantidadAleer;
-                 this.barraLeidos.Maximum = cantidadAleer;
             //-----------------------------------------------
+            int cont = 0; 
 
             int counter = 0;
             int contador = 0;
-            int distintos = 0;
+            int distintos = 0; 
             int escritos = 0;
             int cantidadMailIgual = 0;
             string line;
@@ -279,19 +286,15 @@ namespace WindowsFormsApp2
             string Path = string.Empty; 
 
             string datosTodosObjetos = string.Empty;
-            int cantidadCorte = Convert.ToInt32(this.txtCantidadCorte.Text); //Ñ7 -  "150000"
-            int cantidadArchivosGenerados = 1; //incrementa en linea 367
+            int cantidadCorte = Convert.ToInt32(this.txtCantidadCorte.Text); //Ñ7 -  "150000" (cada cuanta cantidad de mails corta y hace otro archivo) 
+            int cantidadArchivosGenerados = 1; //incrementa en linea 397
 
             fechaOpcion = this.FechaOpcion.Value.ToLongDateString().Replace(",", ""); //Ñ1: pase de valor de fecha en formulario a codigo. Objeto : "FechaOpcion"
             fechaVencimiento = fechaOpcion;// ¿porqué no lo pasa directamente a -fechaVencimiento- ?
 
-
-
-            // NOmbre del archivo .CSV:
-
+            // Nombre del archivo .CSV: (StreamWriter crea el archivo acorde a la extencion que este tenga, sin embargo el unico funcional parace ser cvs)
                string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //nombreDelArchivo.txt - Parte - 1.csv"
                     StreamWriter sw = new StreamWriter(nombreArchivoGenerado); 
-
 
             //reporte; 
             #region
@@ -306,13 +309,12 @@ namespace WindowsFormsApp2
 
             #endregion   
 
-
            this.EscribirCabecera(sw); //  agrega la cabecera o no:  "email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento""
 
            StreamReader file = new StreamReader(txtOrigen); //fullname del archivo original
 
-            //StreamReader
-            #region
+            //StreamReader (explain):
+               #region
             //el StreamReader toma por argumento la ubicacion de un txt. Un path. (TxtOrigen tomo ese valor en: el boton Origen) : ""\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\Automotores\20150422-3-dt.TXT"
 
             /*
@@ -325,61 +327,123 @@ namespace WindowsFormsApp2
             #endregion
 
 
-            while ((line = file.ReadLine()) != null) 
+
+
+            while ((line = file.ReadLine()) != null)
+            /*
+             - Mide si la linea a leer tiene valor
+             - llama a : LeerLinea() y 'trim', genera datos. 
+             - if : equipara valores mail = mailaux (primera vez) 
+             - llama a : armarDatosMail() : ingresa vario de esos datos a tags de HTML y los ingresa en variable "datosObjeto".
+             - If2 :  Primera vez va a else y : datosTodosObjetos += datosObjeto;
+             - Suma contador COUNTER
+             - Suma contador CONTADOR
+             - vuelca valor de COUNTER en barra
+             - while
+             -
+
+
+
+
+             */
+
             {
 
-                this.LeerLinea(line); /* acá se envia el contenido de "line" a un método donde trabaja el combobox "IMPUESTO" 
-                                       alli con el método "TrimEnd(' ')" se seleccionan diferentes partes de la linea del Txt.*/
+                this.LeerLinea(line); //trim(ej255, 1); 
+                #region
+                /* acá se envia el contenido de "line" a un método donde trabaja el combobox "IMPUESTO" 
+                                       alli con el método "TrimEnd(' ')" se seleccionan diferentes partes de la linea del Txt.
 
-              
+                                       datos : 
+                                                mail 
+                                                razonsocial
+                                                cuit 
 
-                if (mailAux == string.Empty) //(mailAux) String declarado en primeras Lineas. [Hasta acá siempre lo recibe vacio la primera vez]
+                                                 
+                                                objetoFormateado 
+                                                montoCuota 
+                                                porcentaje 
+                                                fechaVencimiento
+                                                fechaVencimientoNumero
+                                                
+                                                montoAnual 
+                                                codigoElectronico 
+                                                debitoCredito 
+                                                buenContribuyente 
+                                                Variable
+                                                porcentaje
+                                                anio 
+                                                cuota
+                                                objeto
+                                       */
+
+                #endregion
+
+                if (mailAux == string.Empty) // siempre lo recibe vacio la primera vez]
                 {
-                    mailAux = mail; //(mail) String declarado en principio de programa; vuelve con su valor desde "LeerLinea(Line)".
+                    mailAux = mail; //toma su valor desde "LeerLinea(Line)".
                     razonsocialAux = razonsocial;
                     cuitAux = cuit;
                     //ultimoMail = mail;
                 }
 
-                /*datos con tags HTML, Forma el String "datosObjeto" 
-                 con toda la data de cada row. Lo va a volcar en la 
-                variable "todosDatosObjetos"*/
 
-                this.ArmarDatosMail();  
+                this.ArmarDatosMail();
+                #region
+                /*  ----> Carga los datos con tags HTML, Forma el String "datosObjeto" 
+                                          con toda la data de cada row. de cada variable obtenida en 'LeerLinea()'
+                                            Lo va a volcar en la variable: "todosDatosObjetos"  
+                
+                                             datos:        |          EJ: 
+                
+                                         objetoFormateado  :     0190117251
+                                         cuotaNumero       :     Palabra: 'Cuota'. (?) (y el valor de esta variable?) 
+
+                                         montoCuota        :     7.780.90 
+                                         medioPago         :     www.ARBA.gov.ar
+
+ 
+                                       */
+                #endregion
 
 
+                //If 1 : 
+                #region
 
-                //veo si hay que agrupar el mail o no.
-                if ((mail != mailAux) || (razonsocial != razonsocialAux))// || (cuit != cuitAux))
+
+                if ((mail != mailAux) || (razonsocial != razonsocialAux))// || (cuit != cuitAux)) PRIMERA VEZ SON IGUALES
                 {
-                    //por las dudas que el emblue pueda usarse.
-                    if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail))
+
+                    //IF 0: 
+
+                    if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail))// Ñ:De este conjunto de iIFs siempre va a salir cantidadMailIgual = 0, y por tanto "mailLinea = string.Format("{0}|", mailAux);"
                     {
                          cantidadMailIgual++;
                     }
                     else
                     {
-                         cantidadMailIgual = 0;
-                    }
-                    
+                         cantidadMailIgual = 0;             
+                    }                   
                     if (cantidadMailIgual == 0)
                     {
-                        mailLinea = string.Format("{0}|", mailAux);
+                         mailLinea = string.Format("{0}|", mailAux); //SIEMPRE ESTE              
                     }
                     else
                     {
-                        mailLinea = string.Format("{0}+{1}|", mailAux, cantidadMailIgual.ToString());
+                         mailLinea = string.Format("{0}+{1}|", mailAux, cantidadMailIgual.ToString());                  
                     }
 
 
                     ultimoMail = mailAux;
 
-                    /*"MAilLinea": Esta es la Linea que se forma en el CVS!!!*/
+                    /*"MAilLinea": Esta es la Linea que se forma en el CSV!!!*/
 
+                    mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", razonsocialAux, this.formatearCuit(cuitAux), fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje); //0 - 6 y 8  = datos desde "LeerLinea()", 7 = ArmarDatosMail(). 
 
-                    mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", razonsocialAux, this.formatearCuit(cuitAux), fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje); //estos ultimos vienen desde "LeerLinea"
+                    /*mailLinea ya tiene a estas alturas TODO el contenido que se ve volcado en una linea del .csv*/
+                    cont++;   
+                    //Console.WriteLine("row de while---{0}>",cont + mailLinea);        
 
-             
                     if (escritos == cantidadCorte)
                     {
                         SWinforme.Write(string.Format("Con {0} suscripciones y {1} mails para enviar", contador, escritos));
@@ -398,12 +462,13 @@ namespace WindowsFormsApp2
                         this.EscribirCabecera(sw);
                     }
                     
-                    distintos++;
-                    escritos++;
+                    distintos++;//
+                    escritos++;//
+                   
 
                     if (distintos <= this.barraGenerados.Maximum)
                     {
-                        this.barraGenerados.Value = distintos;                        
+                        this.barraGenerados.Value = distintos;       //                 
                     }                    
 
                     sw.Write(mailLinea);
@@ -420,18 +485,20 @@ namespace WindowsFormsApp2
                 {
                     datosTodosObjetos += datosObjeto;                    
                 }
+                #endregion
 
-                counter++;
-                contador++;
+                counter++; // 1,
+                contador++;// 1,
 
                 if (counter <= this.barraLeidos.Maximum)
                 {
-                    this.barraLeidos.Value = counter;
+                    this.barraLeidos.Value = counter; // 1
                 }                
             }
 
 
-            //por las dudas que el emblue pueda usarse.
+            //If 2  (igual a IF 0)
+            #region
             if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail))
             {
                 cantidadMailIgual++;
@@ -440,7 +507,6 @@ namespace WindowsFormsApp2
             {
                 cantidadMailIgual = 0;
             }
-
             if (cantidadMailIgual == 0)
             {
                 mailLinea = string.Format("{0}|", mailAux);
@@ -449,10 +515,19 @@ namespace WindowsFormsApp2
             {
                 mailLinea = string.Format("{0}+{1}|", mailAux, cantidadMailIgual.ToString());
             }
+            #endregion
 
 
-            ultimoMail = mailAux;
+            #region
+
+            ultimoMail = mailAux; //1
+
+            /*MailLinea  se forma a partir de la suma
+             * de los dos grupos: 0 - 6 y 8 y el <ta> de 7 */
+
             mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", this.formatearCuit(cuitAux), objetoFormateado, fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje);
+
+            //Console.WriteLine("row solo  +++++++++>" + mailLinea);
 
             sw.Write(mailLinea);
             sw.WriteLine();
@@ -474,8 +549,10 @@ namespace WindowsFormsApp2
             file.Close();
             string mensaje = string.Empty;
 
+            #endregion
 
-
+            //If 3 
+            #region   
             if (counter != cantidadAleer)
             {
                 mensaje = string.Format("La cantidad de suscripciones configuradas ({0}) y es distinta a la cantidad de registros leidos ({1}). De todas maneras se generaron {2} mails para enviar.", cantidadAleer, counter, distintos);
@@ -489,7 +566,7 @@ namespace WindowsFormsApp2
                     this.InformarArchivosGenerados();
                 }
             }
-            
+            #endregion     
         }
 
 
@@ -523,27 +600,49 @@ namespace WindowsFormsApp2
                         el archivo de texto tiene las columnas separadas
                         por las distancias marcadas en el TrimEnd.
 
+                        ------
+
+                        Si el numero sugerido no es el mismo de lecturas hechas
+                        no se general el .zip (some reazon)
+
                         */
                         #endregion
 
                         mail = line.Substring(0, 255).TrimEnd(' ').ToLower();
+                            //Console.WriteLine(mail + " -----> mail");
                         objeto = line.Substring(255, 11).TrimEnd(' ');
+                            //Console.WriteLine(objeto + " -----> objeto");
                         objetoFormateado = objeto.ToUpper();
-                        razonsocial = line.Substring(266, 60).TrimEnd(' ');
+                            //Console.WriteLine(objetoFormateado + " -----> objeto formateado");
+                        razonsocial = line.Substring(266, 60).TrimEnd(' ');// nombre
+                            //Console.WriteLine(razonsocial + " -----> razon social");
                         porcentaje = string.Empty;
                         fechaVencimiento = Convert.ToDateTime(line.Substring(334, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
+                            //Console.WriteLine(fechaVencimiento + " -----> fecha de vencimiento ");
                         fechaVencimientoNumero = line.Substring(334, 10).TrimEnd(' ');
+                            //Console.WriteLine(fechaVencimientoNumero + " -----> fecha de vencimiento numero");
+
                         montoCuota = line.Substring(345, 17).Trim(' ');
+                            Console.WriteLine(montoCuota + " -----> monto cuota");
                         montoAnual = line.Substring(362, 16).Trim(' ');
+                            Console.WriteLine(montoAnual + " -----> monto anual");
+                        codigoElectronico = line.Substring(378, 14).Trim(' ');
+                            //Console.WriteLine(codigoElectronico + " -----> codigo electronico");
+                        debitoCredito = line.Substring(392, 1).Trim(' ');
+                            //Console.WriteLine(debitoCredito + " -----> debito credito");
+                        buenContribuyente = line.Substring(393, 1).Trim(' ');
+                            //Console.WriteLine(buenContribuyente + " -----> buen contribuyente");
+                        cuit = line.Substring(394, 11).TrimEnd(' ');
+                            //Console.WriteLine(cuit + " -----> cuit ");
 
-                        /*codigoElectronico = line.Substring(378, 14).Trim(' ');
-                          debitoCredito = line.Substring(392, 1).Trim(' ');
-                          buenContribuyente = line.Substring(393, 1).Trim(' ');
-                          cuit = line.Substring(394, 11).TrimEnd(' ');
 
-                          porcentaje = "20";
+                        Variable = "Prueba  Automotor" ;
+
+
+                        porcentaje = "20";
                           anio = "2020";
-                          cuota = "3";*/
+                          cuota = "3";
+
                         break;
                     }
                 case 2:
@@ -552,18 +651,34 @@ namespace WindowsFormsApp2
                     {
                         //Leo Inmo
                         mail = line.Substring(0, 255).TrimEnd(' ').ToLower();
+                            //Console.WriteLine(mail +" -----> mail");
                         objeto = line.Substring(255, 11).TrimEnd(' ');
+                            //Console.WriteLine(objeto + " -----> objeto");
                         objetoFormateado = formatearObjetoInmobiliario(objeto);
+                            //Console.WriteLine(objetoFormateado + " -----> objetoformateado");
                         razonsocial = line.Substring(266, 60).TrimEnd(' ');
+                            //Console.WriteLine(razonsocial + " -----> razon social");
                         porcentaje = string.Empty;
                         fechaVencimiento = Convert.ToDateTime(line.Substring(334, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
+                            //Console.WriteLine(fechaVencimiento + " ----->fecha de vencimiento");
                         fechaVencimientoNumero = line.Substring(334, 10).TrimEnd(' ');
+                            //Console.WriteLine(fechaVencimientoNumero + " -----> fecha de vencimiento numero");
                         montoCuota = line.Substring(345, 17).Trim(' ');
+                            Console.WriteLine(montoCuota + " -----> monto cuota");
                         montoAnual = line.Substring(362, 16).Trim(' ');
+                            Console.WriteLine(montoAnual + " -----> monto anual");
+
                         //codigoElectronico = line.Substring(378, 14).Trim(' ');
+
                         debitoCredito = line.Substring(392, 1).Trim(' ');
+                            //Console.WriteLine(debitoCredito + " -----> debito credito");
                         buenContribuyente = line.Substring(393, 1).Trim(' ');
+                            //Console.WriteLine(buenContribuyente + " -----> buen contribuyente");
                         cuit = line.Substring(394, 11).TrimEnd(' ');
+                            //Console.WriteLine(cuit  + " -----> cuit");
+
+                        Variable = "Prueba Edificacion -baldio -rural ";
+
                         break;
                     }
                 case 5:
@@ -607,6 +722,8 @@ namespace WindowsFormsApp2
             montoAnual = line.Substring(227, 17).Trim(' ');
             debitoCredito = line.Substring(244, 1).Trim(' ');
             cuit = line.Substring(245, 11).TrimEnd(' ');
+
+            Variable = "Prueba  Complementario ";
 
             //Le pongo si es con anual o no.
             if (ConAnual.Checked)
@@ -728,7 +845,8 @@ namespace WindowsFormsApp2
             if (this.ConCabecera.Checked)
             {
                 pSw.Write("email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento");
-                pSw.WriteLine();
+                pSw.WriteLine(); //salto de linea
+
             }
 
         }
@@ -790,15 +908,22 @@ namespace WindowsFormsApp2
 
         private string formatearObjetoInmobiliario(string pObjeto)
         {
+           
             string partido = pObjeto.Substring(0, 3).TrimEnd(' ');
             string partida = pObjeto.Substring(3, 6).TrimEnd(' ');
             string digito = pObjeto.Substring(9, 1).TrimEnd(' ');
+
             return string.Format("{0}-{1}-{2}", partido, partida, digito);
+  
         }       
 
         private void ArmarDatosMail()  //armado del mail con los tags HTML. 
         {
-            switch (debitoCredito) // en el TXT hay la data dle tipo de "debitocredito" de "leerLinea() " Strign -> datosObjeto
+
+            // Region : Aqui se define 'medioPago': 
+
+                    #region
+            switch (debitoCredito) // dato definito en Procesar() ---> leerLinea()  
             {
                 case "1":
                     {
@@ -818,7 +943,8 @@ namespace WindowsFormsApp2
                 case "0":
                 case "C":
                     {
-                         medioPago = string.Format("<a href=\"" + txturl.Text + "\">Ingresar</a>", objeto); 
+                        medioPago = string.Format("<a href=\"" + txturl.Text + "\">Ingresar</a>", objeto);
+                                                
                         /*
                         if (this.Impuesto.SelectedIndex == 5)
                         {
@@ -848,12 +974,20 @@ namespace WindowsFormsApp2
                     {
                         // medioPago = "ERROR";
                         // break;
-                        medioPago = string.Format("<a href=\"" + txturl.Text + "\">Ingresar</a>", objeto);
+
+                        /* Automotores entra acá por defaoult, el "txturl.text" de 
+                           automotores suma "+ {0}" que acá 
+                           va a tomar el valor de 'objeto' */
+
+
+
+                        medioPago = string.Format("<a href=\"" + txturl.Text + "\">Ingresar</a>", objeto); 
                         break;
                     }
             }
+            #endregion
 
-            //MAIN!!!     (DONDE ESTAN LSO TXT QUE TIENEN DISCRIMINADO EL DEBITO O CREDITO??)
+            //MAIN     
 
             if (this.Impuesto.SelectedIndex == 5)
             {
@@ -862,6 +996,7 @@ namespace WindowsFormsApp2
                 datosObjeto += string.Format("<td class='amarillo'>Cuota {0}</td>", cuotaNumero);
                 datosObjeto += string.Format("<td class='amarillo'>{0}</td>", montoCuota);
                 datosObjeto += string.Format("<td class='gris'>{0}</td>", medioPago);
+               // datosObjeto += string.Format("<td class='peroncho'>{0}</td>", Variable);
                 datosObjeto += "</tr>";
             }
             else
@@ -876,15 +1011,17 @@ namespace WindowsFormsApp2
                     datosObjeto += "</tr>";
                     datosObjeto += "<tr class='datos'><td class='blanco'>Anual</td>";
                     datosObjeto += string.Format("<td class='blanco'>{0}</td>", montoAnual);
+                   // datosObjeto += string.Format("<td class='peroncho'>{0}</td>", Variable);
                     datosObjeto += "</tr>";
                 }
                 else
                 {
                     datosObjeto = "<tr class='datos'>";
-                    datosObjeto += string.Format("<td class='gris'>{0}</td>", objetoFormateado);
-                    datosObjeto += string.Format("<td class='amarillo'>Cuota {0}</td>", cuotaNumero);
-                    datosObjeto += string.Format("<td class='amarillo'>{0}</td>", montoCuota);
-                    datosObjeto += string.Format("<td class='gris'>{0}</td>", medioPago);
+                    datosObjeto += string.Format("<td class='gris'>{0}</td>", objetoFormateado); //0190117251
+                    datosObjeto += string.Format("<td class='amarillo'>Cuota {0}</td>", cuotaNumero);// Palabra: 'Cuota'. (?) (y cuota numero?)
+                    datosObjeto += string.Format("<td class='amarillo'>{0}</td>", montoCuota);//7.780.90
+                    datosObjeto += string.Format("<td class='gris'>{0}</td>", medioPago);//www.ARBA.gov.ar
+                   // datosObjeto += string.Format("<td class='gris'>{0}</td>", Variable);
                     datosObjeto += "</tr>";
                 }
             }
