@@ -272,7 +272,7 @@ namespace WindowsFormsApp2
             this.barraLeidos.Maximum = cantidadAleer;
             this.barraGenerados.Maximum = cantidadAleer;
             //-----------------------------------------------
-            int cont = 0; 
+            int conta = 0; 
 
             int counter = 0;
             int contador = 0;
@@ -289,11 +289,17 @@ namespace WindowsFormsApp2
             int cantidadCorte = Convert.ToInt32(this.txtCantidadCorte.Text); //Ñ7 -  "150000" (cada cuanta cantidad de mails corta y hace otro archivo) 
             int cantidadArchivosGenerados = 1; //incrementa en linea 397
 
-            fechaOpcion = this.FechaOpcion.Value.ToLongDateString().Replace(",", ""); //Ñ1: pase de valor de fecha en formulario a codigo. Objeto : "FechaOpcion"
-            fechaVencimiento = fechaOpcion;// ¿porqué no lo pasa directamente a -fechaVencimiento- ?
+            fechaOpcion = this.FechaOpcion.Value.ToLongDateString().Replace(",", ""); //Ñ1: pase de valor de fecha en formulario a codigo. Objeto :
+                                                                                      //"FechaOpcion"
+
+            //Console.WriteLine("Fecha  1------------->" + fechaOpcion);
+
+            fechaVencimiento = fechaOpcion;// van a tener el mismo valor al principio, luego toma valor del .Txt
+
+            //Console.WriteLine("Fecha Ven A ------------->" + fechaVencimiento);
 
             // Nombre del archivo .CSV: (StreamWriter crea el archivo acorde a la extencion que este tenga, sin embargo el unico funcional parace ser cvs)
-               string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //nombreDelArchivo.txt - Parte - 1.csv"
+            string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //nombreDelArchivo.txt - Parte - 1.csv"
                     StreamWriter sw = new StreamWriter(nombreArchivoGenerado); 
 
             //reporte; 
@@ -329,79 +335,139 @@ namespace WindowsFormsApp2
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             while ((line = file.ReadLine()) != null)
+            #region
             /*
-             - Mide si la linea a leer tiene valor
+             - while: Mide si la linea a leer tiene valor
              - llama a : LeerLinea() y 'trim', genera datos. 
-             - if : equipara valores mail = mailaux (primera vez) 
-             - llama a : armarDatosMail() : ingresa vario de esos datos a tags de HTML y los ingresa en variable "datosObjeto".
-             - If2 :  Primera vez va a else y : datosTodosObjetos += datosObjeto;
+             - if : compara valores mail = mailaux (primera vez) 
+             - llama a : armarDatosMail() : ingresa varios de esos datos a tags de HTML y los ingresa en variable "datosObjeto".
+             - If1 :  Primera vez va a else y : datosTodosObjetos += datosObjeto; SIEMPRE que el mail o el nombre sean el mismo. 
+
              - Suma contador COUNTER
              - Suma contador CONTADOR
              - vuelca valor de COUNTER en barra
              - while
-             -
 
+                - llama a : LeerLinea() y 'trim', genera datos.
+                - if : compara valores mail = mailaux (segunda vez) : la variable no estará vacia, no vuelca nuevos valores. NO VUELVE A ENTRAR ACÁ.
+                - ahora que mail y mailAux podrían ya no coincidir: entra en el If principal -If 1 - 
 
+                     [IMPORTANTE] :  De este modo se compara que se trate de contribuyentes distintos,en mail y en nombre, 
+                                     porque si estas dos variables se parecen, es porque en anterior y el actual
+                                     coinciden, se trataría de la misma persona. 
+                                     
+                                     Mientras nombre y mail no cambien, los datos de datosTodosObjetos* se siguen ACUMULANDO
+                                        Pero solo estos. Luego: mail, cuil, fecha de vencimiento, fecha opcion, anio, 
+                                                                cuota, impuesto, porcentaje y nombre  SE MANTIENEN.                 
 
+                - Mailaux vuelca en UltimoMail
+                - Se carga MailLinea con todos los valores de la ROW ANTEIOR, contenidas AUN en las variables AUX*, y en datosTodosObjetos*
+                   - si las variables hubieran sido iguales en el If1, En el ELSE hubiera sumado los datos a los anteriores en datosTodosObjetos*
+                - suma Distintos*
+                - suma Escritos
+                - Escribe los valores de MailLinea en el .CSV     sw.Write(mailLinea);
+                - Genera un salto de linea en el .CSV             sw.WriteLine();
+                - Vuelca los Valores actuales de Mail/razonsocial/cuit en las variables AUX
+                - vuelca los Valores actuales en datosObjetos* en nuevosdatosTodosObjetos*                     
+                - limpia la variable datosObjeto. 
+                - suma counter;  y   contador;  
+                - Actualiza barraLeidos.Value con counter. 
+                
+                
+                - El ultimo Row del txt va a ser cargado fuera del while. como los datos quedan cargados, pero se vuelcan en la siguiente entrada
+                  el WHILE corta cuando ya no hay lineas de txt, pero aun va a quedar un mail mas por volcar cuando salga. 
 
              */
+            #endregion
 
             {
-
-                this.LeerLinea(line); //trim(ej255, 1); 
+                this.LeerLinea(line); //Trim(ej255, 1); 
                 #region
                 /* acá se envia el contenido de "line" a un método donde trabaja el combobox "IMPUESTO" 
                                        alli con el método "TrimEnd(' ')" se seleccionan diferentes partes de la linea del Txt.
 
-                                       datos : 
-                                                mail 
-                                                razonsocial
-                                                cuit 
+                                       datos :                         |  Ej: 
+                
+                                                mail                   :  estudiojgarcia@gmail.com
+                                                razonsocial            :  pastormerlo celia isabel
+                                                cuit                   :  27149145791    
 
                                                  
-                                                objetoFormateado 
-                                                montoCuota 
-                                                porcentaje 
-                                                fechaVencimiento
-                                                fechaVencimientoNumero
+                                                objetoFormateado       :  0190117251
+                                                montoCuota             :  7.780,90          
+                                                montoAnual             :  31.123,90
+                                                plantadescri (complem) :  B  (baldio)
+
+
+                                                fechaOpcion            :  (la que se elija en formulario)    
+                                                fechaVencimiento       :  martes 23 de febrero de 2021
+                                                fechaVencimientoNumero :  23/02/2021 ( Formato del .Txt,  no se usa en el final)
+                                                objeto                 :      0190117251
+                                                codigoElectronico      :  00100190117251    
+                                                debitoCredito          :  0
+                                                buenContribuyente      :  0    
+                                                Variable               :  "prueba automotor baldio/edificado/complementario" 
+                                                Impuesto               :  ComboBox del principio.
+                                                porcentaje             :  (En complementario)   
+                                                anio                   :  (En complementario; trim), otros ; "2020"      
+                                                cuota                  :  (En complementario; trim), Automotor y Embarcaciones ; "3"
                                                 
-                                                montoAnual 
-                                                codigoElectronico 
-                                                debitoCredito 
-                                                buenContribuyente 
-                                                Variable
-                                                porcentaje
-                                                anio 
-                                                cuota
-                                                objeto
                                        */
 
                 #endregion
 
-                if (mailAux == string.Empty) // siempre lo recibe vacio la primera vez]
+                if (mailAux == string.Empty) // siempre vacio la primera vez
                 {
-                    mailAux = mail; //toma su valor desde "LeerLinea(Line)".
-                    razonsocialAux = razonsocial;
+                    mailAux = mail; 
+                    razonsocialAux = razonsocial; //nombre del conytibuyente
                     cuitAux = cuit;
                     //ultimoMail = mail;
                 }
 
-
-                this.ArmarDatosMail();
+                this.ArmarDatosMail();  // HTML
                 #region
                 /*  ----> Carga los datos con tags HTML, Forma el String "datosObjeto" 
                                           con toda la data de cada row. de cada variable obtenida en 'LeerLinea()'
-                                            Lo va a volcar en la variable: "todosDatosObjetos"  
+                                          Lo va a volcar en la variable: "todosDatosObjetos"  
                 
-                                             datos:        |          EJ: 
+                                             Datos -trim:-      |          EJ: 
                 
-                                         objetoFormateado  :     0190117251
-                                         cuotaNumero       :     Palabra: 'Cuota'. (?) (y el valor de esta variable?) 
+                                         objetoFormateado       :     0190117251
+                                         cuotaNumero            :     Imprime solo Palabra: 'Cuota'. (?) (y el valor de esta variable?) 
+                                         montoCuota             :     7.780.90 
+                                         medioPago              :     www.ARBA.gov.ar
 
-                                         montoCuota        :     7.780.90 
-                                         medioPago         :     www.ARBA.gov.ar
-
+                                         montoAnual (checked)   :     31.123,90 
+                                         plantadescri (complem) :     B  (baldio)
  
                                        */
                 #endregion
@@ -411,11 +477,10 @@ namespace WindowsFormsApp2
                 #region
 
 
-                if ((mail != mailAux) || (razonsocial != razonsocialAux))// || (cuit != cuitAux)) PRIMERA VEZ SON IGUALES
+                if ((mail != mailAux) || (razonsocial != razonsocialAux))// || (cuit != cuitAux)) PRIMERA VEZ SON IGUALES: si no se parecen, es otro contribuyente. o el mismo con diferente mail. 
                 {
 
-                    //IF 0: 
-
+                    //IF 0: - checked* 
                     if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail))// Ñ:De este conjunto de iIFs siempre va a salir cantidadMailIgual = 0, y por tanto "mailLinea = string.Format("{0}|", mailAux);"
                     {
                          cantidadMailIgual++;
@@ -438,11 +503,18 @@ namespace WindowsFormsApp2
 
                     /*"MAilLinea": Esta es la Linea que se forma en el CSV!!!*/
 
+                    // Console.WriteLine("primer datos objetos B ----------------->" + datosTodosObjetos);
+
+                    // A
+
                     mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", razonsocialAux, this.formatearCuit(cuitAux), fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje); //0 - 6 y 8  = datos desde "LeerLinea()", 7 = ArmarDatosMail(). 
+                    //Console.WriteLine("Fecha Ven B ------------->" + fechaVencimiento);
+                   
 
                     /*mailLinea ya tiene a estas alturas TODO el contenido que se ve volcado en una linea del .csv*/
-                    cont++;   
-                    //Console.WriteLine("row de while---{0}>",cont + mailLinea);        
+                    //cont++;   
+                    Console.WriteLine("row de while--->" +  mailLinea);
+                    Console.WriteLine(" ");
 
                     if (escritos == cantidadCorte)
                     {
@@ -482,24 +554,65 @@ namespace WindowsFormsApp2
                     datosObjeto = string.Empty;
                 }
                 else
-                {
-                    datosTodosObjetos += datosObjeto;                    
-                }
                 #endregion
+                {  // si mail y nombre son iguales. 
+                    datosTodosObjetos += datosObjeto;
 
-                counter++; // 1,
-                contador++;// 1,
+
+                    conta++; 
+                    //Console.WriteLine("primer datos objetos A----------------->" + datosTodosObjetos);
+                }
+               
+
+                counter++;      
+                contador++;
 
                 if (counter <= this.barraLeidos.Maximum)
                 {
-                    this.barraLeidos.Value = counter; // 1
+                    this.barraLeidos.Value = counter; 
                 }                
-            }
+
+            }// end while
 
 
-            //If 2  (igual a IF 0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //If 2  (igual a IF 0) - checked* // cuenta +1 x cada cambio de mail. 
             #region
-            if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail))
+            if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail)) 
             {
                 cantidadMailIgual++;
             }
@@ -520,14 +633,17 @@ namespace WindowsFormsApp2
 
             #region
 
-            ultimoMail = mailAux; //1
+            ultimoMail = mailAux; 
 
             /*MailLinea  se forma a partir de la suma
              * de los dos grupos: 0 - 6 y 8 y el <ta> de 7 */
 
-            mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", this.formatearCuit(cuitAux), objetoFormateado, fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje);
+               // B 
+            mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", this.formatearCuit(cuitAux), objetoFormateado, fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje);  // y la razon social (nombre) ?
 
-            //Console.WriteLine("row solo  +++++++++>" + mailLinea);
+           // Console.WriteLine("Fecha 3------------->" + fechaOpcion);
+
+            Console.WriteLine("row solo  +++++++++>" + mailLinea);
 
             sw.Write(mailLinea);
             sw.WriteLine();
@@ -623,9 +739,9 @@ namespace WindowsFormsApp2
                             //Console.WriteLine(fechaVencimientoNumero + " -----> fecha de vencimiento numero");
 
                         montoCuota = line.Substring(345, 17).Trim(' ');
-                            Console.WriteLine(montoCuota + " -----> monto cuota");
+                            //Console.WriteLine(montoCuota + " -----> monto cuota");
                         montoAnual = line.Substring(362, 16).Trim(' ');
-                            Console.WriteLine(montoAnual + " -----> monto anual");
+                            //Console.WriteLine(montoAnual + " -----> monto anual");
                         codigoElectronico = line.Substring(378, 14).Trim(' ');
                             //Console.WriteLine(codigoElectronico + " -----> codigo electronico");
                         debitoCredito = line.Substring(392, 1).Trim(' ');
@@ -664,9 +780,9 @@ namespace WindowsFormsApp2
                         fechaVencimientoNumero = line.Substring(334, 10).TrimEnd(' ');
                             //Console.WriteLine(fechaVencimientoNumero + " -----> fecha de vencimiento numero");
                         montoCuota = line.Substring(345, 17).Trim(' ');
-                            Console.WriteLine(montoCuota + " -----> monto cuota");
+                            //Console.WriteLine(montoCuota + " -----> monto cuota");
                         montoAnual = line.Substring(362, 16).Trim(' ');
-                            Console.WriteLine(montoAnual + " -----> monto anual");
+                            //Console.WriteLine(montoAnual + " -----> monto anual");
 
                         //codigoElectronico = line.Substring(378, 14).Trim(' ');
 
@@ -757,6 +873,8 @@ namespace WindowsFormsApp2
             razonsocial = myTI.ToTitleCase(razonsocial);
 
         }
+
+
 
         private void InformarArchivosGenerados()
         {
@@ -850,9 +968,7 @@ namespace WindowsFormsApp2
             }
 
         }
-
-
-        //---------------- x ver. 
+ 
 
         private string formatearObjeto(string pObjeto)
         {
@@ -996,7 +1112,8 @@ namespace WindowsFormsApp2
                 datosObjeto += string.Format("<td class='amarillo'>Cuota {0}</td>", cuotaNumero);
                 datosObjeto += string.Format("<td class='amarillo'>{0}</td>", montoCuota);
                 datosObjeto += string.Format("<td class='gris'>{0}</td>", medioPago);
-               // datosObjeto += string.Format("<td class='peroncho'>{0}</td>", Variable);
+               // datosObjeto += string.Format("<td class=''>{0}</td>", Variable);
+
                 datosObjeto += "</tr>";
             }
             else
@@ -1011,7 +1128,7 @@ namespace WindowsFormsApp2
                     datosObjeto += "</tr>";
                     datosObjeto += "<tr class='datos'><td class='blanco'>Anual</td>";
                     datosObjeto += string.Format("<td class='blanco'>{0}</td>", montoAnual);
-                   // datosObjeto += string.Format("<td class='peroncho'>{0}</td>", Variable);
+                   // datosObjeto += string.Format("<td class=''>{0}</td>", Variable);
                     datosObjeto += "</tr>";
                 }
                 else
