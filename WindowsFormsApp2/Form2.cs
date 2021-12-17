@@ -274,10 +274,11 @@ namespace WindowsFormsApp2
             //-----------------------------------------------
             int conta = 0; 
 
-            int counter = 0;
-            int contador = 0;
-            int distintos = 0; 
-            int escritos = 0;
+            int counter = 0; //cantidad de registros leidos
+            int distintos = 0; // cantidad de mails distintos generados.
+            int contador = 0; //cantidad de subscripciones por csv (para informe)          
+            int escritos = 0;  // cantidad de registros leidos por csv (para informe)
+
             int cantidadMailIgual = 0;
             string line;
             string mailLinea = string.Empty;
@@ -368,7 +369,7 @@ namespace WindowsFormsApp2
             /*
              - while: Mide si la linea a leer tiene valor
              - llama a : LeerLinea() y 'trim', genera datos. 
-             - if : compara valores mail = mailaux (primera vez) 
+             - if : compara valores mail = mailaux (primera vez) los vuelca.  
              - llama a : armarDatosMail() : ingresa varios de esos datos a tags de HTML y los ingresa en variable "datosObjeto".
              - If1 :  Primera vez va a else y : datosTodosObjetos += datosObjeto; SIEMPRE que el mail o el nombre sean el mismo. 
 
@@ -379,32 +380,42 @@ namespace WindowsFormsApp2
 
                 - llama a : LeerLinea() y 'trim', genera datos.
                 - if : compara valores mail = mailaux (segunda vez) : la variable no estará vacia, no vuelca nuevos valores. NO VUELVE A ENTRAR ACÁ.
-                - ahora que mail y mailAux podrían ya no coincidir: entra en el If principal -If 1 - 
+                
+                
+                - Ahora que mail y mailAux podrían ya no coincidir por tanto: 
+            
+               entra en el If principal -If 1 - 
 
-                     [IMPORTANTE] :  De este modo se compara que se trate de contribuyentes distintos,en mail y en nombre, 
-                                     porque si estas dos variables se parecen, es porque en anterior y el actual
-                                     coinciden, se trataría de la misma persona. 
+                         [IMPORTANTE] :  De este modo se compara que se trate de contribuyentes distintos,en mail y en nombre, 
+                                         porque si estas dos variables se parecen, es porque en anterior y el actual
+                                         coinciden, se trataría de la misma persona. 
                                      
-                                     Mientras nombre y mail no cambien, los datos de datosTodosObjetos* se siguen ACUMULANDO
-                                        Pero solo estos. Luego: mail, cuil, fecha de vencimiento, fecha opcion, anio, 
-                                                                cuota, impuesto, porcentaje y nombre  SE MANTIENEN.                 
+                                         Mientras nombre y mail no cambien, los datos de datosTodosObjetos* se siguen ACUMULANDO
+                                            Pero solo estos. Luego: mail, cuil, fecha de vencimiento, fecha opcion, anio, 
+                                                                    cuota, impuesto, porcentaje y nombre  SE MANTIENEN.                 
 
-                - Mailaux vuelca en UltimoMail
-                - Se carga MailLinea con todos los valores de la ROW ANTEIOR, contenidas AUN en las variables AUX*, y en datosTodosObjetos*
-                   - si las variables hubieran sido iguales en el If1, En el ELSE hubiera sumado los datos a los anteriores en datosTodosObjetos*
-                - suma Distintos*
-                - suma Escritos
-                - Escribe los valores de MailLinea en el .CSV     sw.Write(mailLinea);
-                - Genera un salto de linea en el .CSV             sw.WriteLine();
-                - Vuelca los Valores actuales de Mail/razonsocial/cuit en las variables AUX
-                - vuelca los Valores actuales en datosObjetos* en nuevosdatosTodosObjetos*                     
-                - limpia la variable datosObjeto. 
-                - suma counter;  y   contador;  
-                - Actualiza barraLeidos.Value con counter. 
+                    - Mailaux vuelca en UltimoMail
+                    - Se carga MailLinea con todos los valores de la ROW ANTEIOR, contenidas AUN en las variables AUX*, y en datosTodosObjetos*
+                       - si las variables hubieran sido iguales en el If1, En el ELSE hubiera sumado los datos a los anteriores en datosTodosObjetos*
+                    - suma Distintos* (mail distinto)
+                    - suma Escritos
+                    - Escribe los valores de MailLinea en el .CSV     sw.Write(mailLinea);
+                    - Genera un salto de linea en el .CSV             sw.WriteLine();
+                    - Vuelca los Valores actuales de Mail/razonsocial/cuit en las variables AUX
+                    - vuelca los Valores actuales en datosObjetos* en nuevosdatosTodosObjetos*                     
+                    - limpia la variable datosObjeto. 
+                    -  * Al haber igresado hasta aqui, los datos en AUX pertenecerían a otro contribuyente, 
+                         asi que se renuevan, pero despues de haber volcado el contenido anterior. Luego 
+                         tambien se renueva datosTodosObjetos* y se limpia datosObjeto*;
+
+               Sale del If1. 
+
+             - suma counter;  y   contador;  
+             - Actualiza barraLeidos.Value con counter. 
                 
                 
-                - El ultimo Row del txt va a ser cargado fuera del while. como los datos quedan cargados, pero se vuelcan en la siguiente entrada
-                  el WHILE corta cuando ya no hay lineas de txt, pero aun va a quedar un mail mas por volcar cuando salga. 
+             - El ultimo Row del txt va a ser cargado fuera del while. como los datos quedan cargados, pero se vuelcan en la siguiente entrada
+               el WHILE corta cuando ya no hay lineas de txt, pero aun va a quedar un mail mas por volcar cuando salga. 
 
              */
             #endregion
@@ -543,13 +554,24 @@ namespace WindowsFormsApp2
                         this.barraGenerados.Value = distintos;       //                 
                     }                    
 
+
+                     // volcado final: 
+
                     sw.Write(mailLinea);
                     sw.WriteLine();
 
+
+
+
+
+                    /* Al haber igresado hasta aqui, los datos en AUX perteneces a otro contribuyente, 
+                     asi que se renuevan, pero despues de haber volcado el contenido anterior. Luego 
+                     tambien se renueva datosTodosObjetos* y se limpia datosObjeto*;
+                    */
+
                     mailAux = mail;
                     razonsocialAux = razonsocial;
-                    cuitAux = cuit;
-                    
+                    cuitAux = cuit;                   
                     datosTodosObjetos = datosObjeto;                    
                     datosObjeto = string.Empty;
                 }
@@ -564,13 +586,15 @@ namespace WindowsFormsApp2
                 }
                
 
-                counter++;      
-                contador++;
+                counter++;   //único lugar que COUNTER suma. Cantidad de Rows Leidos.   
+                contador++; //único lugar que CONTADOR suma. 
 
                 if (counter <= this.barraLeidos.Maximum)
                 {
                     this.barraLeidos.Value = counter; 
                 }                
+
+               
 
             }// end while
 
@@ -643,7 +667,7 @@ namespace WindowsFormsApp2
 
            // Console.WriteLine("Fecha 3------------->" + fechaOpcion);
 
-            Console.WriteLine("row solo  +++++++++>" + mailLinea);
+            // Console.WriteLine("row solo  +++++++++>" + mailLinea);
 
             sw.Write(mailLinea);
             sw.WriteLine();
@@ -677,10 +701,19 @@ namespace WindowsFormsApp2
             else
             {
                 mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar. Armar bases?", counter.ToString(), distintos.ToString());
+
+
+                this.barraGenerados.Value = cantidadAleer;  // agregado Ñ para que la barra de Generados termine. 
+
+
+
+
+
                 if (MessageBox.Show(mensaje, "Control Totales ATENCION", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     this.InformarArchivosGenerados();
                 }
+
             }
             #endregion     
         }
