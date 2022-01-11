@@ -19,7 +19,7 @@ namespace WindowsFormsApp2
         #region
 
         string txtOrigen = string.Empty;
-        string txtDestino = string.Empty;//txtDestino:  se usa para tener el nombre del archivo original presnete, y usarlo para crear el nuevo con ese nombre incluido.  ej  en "nombreArchivoGenerado"
+        string txtDestino = string.Empty;//txtDestino:  se usa para tener el nombre del archivo original presente, y usarlo para crear el nuevo con ese nombre incluido.  ej  en "nombreArchivoGenerado"
 
 
         string mailAux = string.Empty;
@@ -1115,7 +1115,7 @@ namespace WindowsFormsApp2
                         }
                         else
                         {
-                            medioPago = string.Format("<a href=\"http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D{0}%26opc%3DLIC%26Frame%3DSI%26oi%3D{1}\">Ingresar</a>", impuestoLiquidar, objeto);
+                            medioPago = string.Format("<a href=\"http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D{0}%26opc%3DLIC%26Frame%3DSI%26oinombreImpuesto%3D{1}\">Ingresar</a>", impuestoLiquidar, objeto);
                         }
                         break;
                     }*/

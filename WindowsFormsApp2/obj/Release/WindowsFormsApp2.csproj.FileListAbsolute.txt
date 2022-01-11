@@ -42,3 +42,15 @@ C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPor
 C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.CoreCompileInputs.cache
 C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.exe
 C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.pdb
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe.config
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\bin\Release\WindowsFormsApp2.pdb
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.AssemblyReference.cache
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.SuggestedBindingRedirects.cache
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form2.resources
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form1.resources
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Properties.Resources.resources
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.GenerateResource.cache
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.CoreCompileInputs.cache
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.exe
+C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.pdb
