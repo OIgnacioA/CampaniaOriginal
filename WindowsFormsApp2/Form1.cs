@@ -51,9 +51,8 @@ namespace WindowsFormsApp2
 
         string impuestoLiquidar = string.Empty;
 
-        string directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba";
-        // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
-        string directorioDestino = @"C:\\Users\\oscar.avendano\\Desktop\\aplicacion Campaña\\Archivos de Prueba"; // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+        string directorioOrigen = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
+        string directorioDestino = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
 
         public Form1()
         {
@@ -66,7 +65,7 @@ namespace WindowsFormsApp2
             bool seguir = false;
             try
             {
-                int cantidad = Convert.ToInt32(this.txtCantidad.Text); //
+                int cantidad = Convert.ToInt32(this.txtCantidad.Text);
                 seguir = true;
             }
             catch (Exception) { }
@@ -351,15 +350,8 @@ namespace WindowsFormsApp2
 
         private void Impuesto_SelectedIndexChanged(object sender, EventArgs e)
         {
-            directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\";
-
-            // Original  -> @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
-
-            directorioDestino = @"C:\\Users\\oscar.avendano\\Desktop\\aplicacion Campaña\\Archivos de Prueba";
-
-            // Original  ->@"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
-
-
+            directorioOrigen = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
+            directorioDestino = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
             List<string> cuotas;
             switch (this.Impuesto.SelectedIndex)
             {

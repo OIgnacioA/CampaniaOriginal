@@ -30,27 +30,19 @@ C:\Users\sebastian.amerio\Desktop\Seba\ARBA\Emisiones\Mail_Campaña\WindowsForms
 C:\Users\sebastian.amerio\Desktop\Seba\ARBA\Emisiones\Mail_Campaña\WindowsFormsApp2\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.CoreCompileInputs.cache
 C:\Users\sebastian.amerio\Desktop\Seba\ARBA\Emisiones\Mail_Campaña\WindowsFormsApp2\WindowsFormsApp2\obj\Release\WindowsFormsApp2.exe
 C:\Users\sebastian.amerio\Desktop\Seba\ARBA\Emisiones\Mail_Campaña\WindowsFormsApp2\WindowsFormsApp2\obj\Release\WindowsFormsApp2.pdb
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe.config
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.pdb
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.AssemblyReference.cache
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.SuggestedBindingRedirects.cache
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form2.resources
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form1.resources
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Properties.Resources.resources
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.GenerateResource.cache
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.CoreCompileInputs.cache
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.exe
-C:\Users\oscar.avendano\Desktop\version original\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.pdb
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe.config
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\bin\Release\WindowsFormsApp2.pdb
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.AssemblyReference.cache
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.SuggestedBindingRedirects.cache
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form2.resources
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form1.resources
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Properties.Resources.resources
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.GenerateResource.cache
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.CoreCompileInputs.cache
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.exe
-C:\Users\sehent\Desktop\CampaniaOriginal\WindowsFormsApp2\obj\Release\WindowsFormsApp2.pdb
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe.config
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.pdb
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.AssemblyReference.cache
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.SuggestedBindingRedirects.cache
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form2.resources
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Form1.resources
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.Properties.Resources.resources
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.GenerateResource.cache
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.csproj.CoreCompileInputs.cache
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.exe
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.pdb
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.exe.manifest
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\bin\Release\WindowsFormsApp2.application
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.exe.manifest
+C:\Users\oscar.avendano\Desktop\PRODUCCION_EmisionesCampañaPorMail\WindowsFormsApp2\obj\Release\WindowsFormsApp2.application

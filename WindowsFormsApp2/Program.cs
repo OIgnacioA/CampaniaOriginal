@@ -14,13 +14,12 @@ namespace WindowsFormsApp2
         [STAThread]
         static void Main()
         {
+         
 
-            Console.WriteLine("------------> Main: ");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+          
             Application.Run(new Form2());
-
-            
         }
     }
 }

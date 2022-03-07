@@ -67,8 +67,8 @@
             // 
             // Origen
             // 
-            this.Origen.InitialDirectory = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent"; /*"\\\\arba.gov.ar\\DE\\GGTI\\Gerencia de Produccion\\Mantenimiento\\Boleta Electronica\\Ori" +
-    "gen"; */
+            this.Origen.InitialDirectory = "\\\\arba.gov.ar\\DE\\GGTI\\Gerencia de Produccion\\Mantenimiento\\Boleta Electronica\\Ori" +
+    "gen";
             // 
             // button2
             // 
