@@ -1,0 +1,1184 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp2
+{
+    public partial class Form2 : Form
+    {
+        //--Variables de campo. 
+        #region
+
+        string txtOrigen = string.Empty;
+        string txtDestino = string.Empty;//txtDestino:  se usa para tener el nombre del archivo original presente, y usarlo para crear el nuevo con ese nombre incluido.  ej  en "nombreArchivoGenerado"
+
+
+        string mailAux = string.Empty;
+        string razonsocialAux = string.Empty;
+        string cuitAux = string.Empty;
+
+        string mail = string.Empty;
+        string objeto = string.Empty;
+        string objetoFormateado = string.Empty;
+        string razonsocial = string.Empty;
+        string porcentaje = string.Empty;
+        string anio = string.Empty;
+        string cuota = string.Empty;
+        string cuotaNumero = string.Empty;
+        string fechaVencimiento = string.Empty;
+        string fechaVencimientoNumero = string.Empty;
+        string montoCuota = string.Empty;
+        string montoAnual = string.Empty;
+        string codigoElectronico = string.Empty;
+        string debitoCredito = string.Empty;
+        string buenContribuyente = string.Empty;
+        string cuit = string.Empty;
+        string cuitFormateado = string.Empty;
+        string medioPago = string.Empty;
+        string planta = string.Empty;
+        string plantaDescri = string.Empty;
+        string impuesto = string.Empty;
+        string fechaOpcion = string.Empty;
+        //string descuento = string.Empty;
+
+        string nombreImpuesto = string.Empty;
+        
+        string datosObjeto = string.Empty; // OBJETO DONDE SE DEPOCITA EL RESULTADO FINAL
+        /// </summary>
+
+        string impuestoLiquidar = string.Empty;
+
+        string directorioOrigen = "";       //@"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; 
+                                           // @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
+        string directorioDestino = "";    //@"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // @"\\arba.gov.ar\DE\GGTI                                   \Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+
+
+        string Variable = string.Empty;
+
+
+        #endregion //--Variables de campo. 
+
+        public Form2()
+        {
+            InitializeComponent();
+            habilitarGenerar();
+        }
+
+
+        // --- configuracion Datos Base: 
+
+
+        private void button2_Click(object sender, EventArgs e) // Boton 'Origen'. Abre ventana de archivos- toma la ruta del archivo elegido, lo muestra por pantalla, 
+        {
+
+            //Ñ 11
+            #region
+
+            //Console.WriteLine("ver el path " + Path.GetDirectoryName(this.Origen.InitialDirectory));
+
+            /* --- El valor de busqueda se encuentra en:  "Form2.Designer.cs"
+             
+                     DialogResult se puede usar desde el código que 
+                     mostró un cuadro de diálogo para determinar si 
+                     un usuario aceptó ( true ) o canceló
+                     ( false ) el cuadro de diálogo.
+            
+
+            Ñ 12 -IMPORTANTE: 
+
+                La ruta para el Showdialog estaba mal escrita,
+            asi que no llevaba a ningun lado,Mientras esto permaneció así 
+            siempre ABRIA LA MSIMA VENTANA, aparentemente por defecto quizá 
+            la ultima que funcionó en la busqueda. 
+            
+            */
+            #endregion
+
+            Origen.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";// Ñ:)
+
+
+            DialogResult dr = this.Origen.ShowDialog(); //valor de busqueda dado en: "InitialDirectory = Path"
+
+                         // Console.WriteLine("valor 1 -origen---->" + txtOrigen);
+
+            txtOrigen = this.Origen.FileName; // TxtOrigen  toma el valor del .txt ELEGIDO en la ventana emergente: (path compelto con nombre de archivo incluido)
+
+                         // Console.WriteLine("valor 2 -origen---->" + txtOrigen); //Luego de clickear
+
+            this.habilitarGenerar(); //mostrar Path por pantalla y habilitar boton "generar"
+        }
+ 
+
+        private void button1_Click(object sender, EventArgs e) //Ñ4 boton 'Generar'. 
+        {
+
+            #region 
+            /*- Toma el valor de "cantidad de subscripciones" 
+              -     en caso de ser nulo envia un mensaje por pantalla
+              - Toma el texto de "Impuesto" y la ruta a travez del Objeto 'Origen'*/
+
+            #endregion
+
+            bool seguir = false;
+            try
+            {
+                int cantidad = Convert.ToInt32(this.txtCantidad.Text);
+                seguir = true;
+            }
+            catch (Exception) { }
+
+            if (seguir)
+            {
+
+                /*txtOrigen y TxtDestinovan a tener el mismo valor,
+                    "txtdestino.Replace" deja solo 
+                     el nombre del archivo seleccionado:*/
+
+               
+                impuesto = this.Impuesto.Text;
+                txtDestino = this.Origen.FileName; //(igual a Path:  de Origen ) botón 'Origen' ventana emergente -OpenFileDialog- : da x ej: \\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\Edificado\20150519-3-CO.TXT
+
+               
+  
+                txtDestino = txtDestino.Replace(this.Origen.InitialDirectory, ""); //Ñ 5: txtdestino es el nombre del archivo en si sobre el que se está trabajando.  quedaría : "\Edificado\20150519-3-CO.TXT" 
+
+
+                this.procesar();
+            }
+            else
+            {
+                this.txtCantidad.Focus();
+
+                MessageBox.Show("Ingrese la cantidad de suscripciones a procesar.", "Boleta Electrónica");
+            }
+        }
+
+        private void Impuesto_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            #region 
+            /* - Al elegir una de las opciones de impuesto del combobox
+                    toma la direccion de la carpeta dnd se encuentran los 
+                    archivos relacionados a ese impuesto. 
+            
+               - Toma la direccion base "directorioOrigen" y agrega la 
+                     carpeta ej: @Automotores*/
+            #endregion
+
+            directorioOrigen = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\"; // Ñ 11 paarentemente si se escribe mal la direccion de origen, y esta no da a ningun lado lleva a la ultima direccion que funcionó en la bsuqueda.
+
+            // Original  -> @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
+
+            directorioDestino = @"C:\Users\oscar.avendano\Desktop\aplicacion Campaña\Archivos de Prueba\sehent\Destinox\";
+
+            // Original  ->@"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Destino\";
+
+            List<string> cuotas;
+
+
+
+            switch (this.Impuesto.SelectedIndex)
+            {
+                case 0:
+                    {
+                        directorioOrigen += @"Automotores\";
+                        directorioDestino += @"Automotores\";
+
+
+
+                        impuestoLiquidar = "1";
+                        nombreImpuesto = "Automotor";
+                        txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D1%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
+
+
+                        break;
+                    }
+                case 1:
+                    {
+                        directorioOrigen += @"Embarcaciones\";
+                        directorioDestino += @"Embarcaciones\";
+                        nombreImpuesto = "Embarcaciones";
+                        impuestoLiquidar = "3";
+                        txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D3%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
+                        break;
+
+                    }
+                case 2:
+                    {
+                        directorioOrigen += @"Edificado\";
+                        directorioDestino += @"Edificado\";
+                        nombreImpuesto = "Edificado";
+                        impuestoLiquidar = "0";
+                        txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D0%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
+                        break;
+                    }
+                case 3:
+                    {
+                        directorioOrigen += @"Baldio\";
+                        directorioDestino += @"Baldio\";
+                        nombreImpuesto = "Baldio";
+                        impuestoLiquidar = "0";
+                        txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D0%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
+                        break;
+                    }
+                case 4:
+                    {
+                        directorioOrigen += @"Rural\";
+                        directorioDestino += @"Rural\";
+                        impuestoLiquidar = "0";
+                        nombreImpuesto = "Rural";
+                        txturl.Text = "http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D0%26opc%3DLIC%26Frame%3DSI%26oi%3D" + "{0}";
+                        break;
+                    }
+                case 5:
+                    {
+                        directorioOrigen += @"Complementario\";
+                        directorioDestino += @"Complementario\";
+                        nombreImpuesto = "Complementario";
+                        impuestoLiquidar = "10";
+                        txturl.Text = "https://www.arba.gov.ar/aplicaciones/LiqPredet.asp?imp=10&Fame=NO&origen=WEB&op=IIC";
+                        break;
+                    }
+
+                default:
+                    {
+                        cuotas = new List<string>() { "0" };
+                        break;
+                    }
+            }
+
+
+            this.Origen.InitialDirectory = directorioOrigen;  // aqui se carga la ventana de busqueda: siendo la carpeta que coincida en nombre con lo seleccionado en el combobox.      
+        }
+
+
+
+
+
+        private void procesar()
+        {
+            int cantidadAleer = Convert.ToInt32(this.txtCantidad.Text); // "Cant. Suscripciones"
+
+            //barras de carga-------------------------------- :3
+            this.barraLeidos.Maximum = cantidadAleer;
+            this.barraGenerados.Maximum = cantidadAleer;
+            //-----------------------------------------------
+            int conta = 0; 
+
+            int counter = 0; //cantidad de registros leidos
+            int distintos = 0; // cantidad de mails distintos generados.
+            int contador = 0; //cantidad de subscripciones por csv (para informe)          
+            int escritos = 0;  // cantidad de registros leidos por csv (para informe)
+
+            int cantidadMailIgual = 0;
+            string line;
+            string mailLinea = string.Empty;
+            string ultimoMail = string.Empty;
+
+            string Path = string.Empty; 
+
+            string datosTodosObjetos = string.Empty;
+            int cantidadCorte = Convert.ToInt32(this.txtCantidadCorte.Text); //Ñ7 -  "150000" (cada cuanta cantidad de mails corta y hace otro archivo) 
+            int cantidadArchivosGenerados = 1; //incrementa en linea 397
+
+            fechaOpcion = this.FechaOpcion.Value.ToLongDateString().Replace(",", ""); //Ñ1: pase de valor de fecha en formulario a codigo. Objeto :
+                                                                                      //"FechaOpcion"
+
+            //Console.WriteLine("Fecha  1------------->" + fechaOpcion);
+
+            fechaVencimiento = fechaOpcion;// van a tener el mismo valor al principio, luego toma valor del .Txt
+
+            //Console.WriteLine("Fecha Ven A ------------->" + fechaVencimiento);
+
+            // Nombre del archivo .CSV: (StreamWriter crea el archivo acorde a la extencion que este tenga, sin embargo el unico funcional parace ser cvs)
+            string nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados); //nombreDelArchivo.txt - Parte - 1.csv"
+                    StreamWriter sw = new StreamWriter(nombreArchivoGenerado); 
+
+            //reporte; 
+            #region
+
+            Path = directorioOrigen + "informe.txt"; 
+
+            StreamWriter SWinforme = new StreamWriter(Path);
+
+            SWinforme.Write("Se generearon los siguientes archivos:");
+            SWinforme.WriteLine();
+            SWinforme.Write(string.Format("Archivo ** {0} ** ", nombreArchivoGenerado));
+
+            #endregion   
+
+           this.EscribirCabecera(sw); //  agrega la cabecera o no:  "email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento""
+
+           StreamReader file = new StreamReader(txtOrigen); //fullname del archivo original
+
+            //StreamReader (explain):
+               #region
+            //el StreamReader toma por argumento la ubicacion de un txt. Un path. (TxtOrigen tomo ese valor en: el boton Origen) : ""\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\Automotores\20150422-3-dt.TXT"
+
+            /*
+            el objeto "file", de tipo streamReader: toma "txtOrigen" como argumento: 
+            por esto en el metodo ReadLine devuleve linea a linea
+            el contenido del TxT (aunque solo muestra el mail en la impreison por pantalla) 
+             
+             */
+
+            #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            while ((line = file.ReadLine()) != null)
+            #region
+            /*
+             - while: Mide si la linea a leer tiene valor
+             - llama a : LeerLinea() y 'trim', genera datos. 
+             - if : compara valores mail = mailaux (primera vez) los vuelca.  
+             - llama a : armarDatosMail() : ingresa varios de esos datos a tags de HTML y los ingresa en variable "datosObjeto".
+             - If1 :  Primera vez va a else y : datosTodosObjetos += datosObjeto; SIEMPRE que el mail o el nombre sean el mismo. 
+
+             - Suma contador COUNTER
+             - Suma contador CONTADOR
+             - vuelca valor de COUNTER en barra
+             - while
+
+                - llama a : LeerLinea() y 'trim', genera datos.
+                - if : compara valores mail = mailaux (segunda vez) : la variable no estará vacia, no vuelca nuevos valores. NO VUELVE A ENTRAR ACÁ.
+                
+                
+                - Ahora que mail y mailAux podrían ya no coincidir por tanto: 
+            
+               entra en el If principal -If 1 - 
+
+                         [IMPORTANTE] :  De este modo se compara que se trate de contribuyentes distintos,en mail y en nombre, 
+                                         porque si estas dos variables se parecen, es porque en anterior y el actual
+                                         coinciden, se trataría de la misma persona. 
+                                     
+                                         Mientras nombre y mail no cambien, los datos de datosTodosObjetos* se siguen ACUMULANDO
+                                            Pero solo estos. Luego: mail, cuil, fecha de vencimiento, fecha opcion, anio, 
+                                                                    cuota, impuesto, porcentaje y nombre  SE MANTIENEN.                 
+
+                    - Mailaux vuelca en UltimoMail
+                    - Se carga MailLinea con todos los valores de la ROW ANTEIOR, contenidas AUN en las variables AUX*, y en datosTodosObjetos*
+                       - si las variables hubieran sido iguales en el If1, En el ELSE hubiera sumado los datos a los anteriores en datosTodosObjetos*
+                    - suma Distintos* (mail distinto)
+                    - suma Escritos
+                    - Escribe los valores de MailLinea en el .CSV     sw.Write(mailLinea);
+                    - Genera un salto de linea en el .CSV             sw.WriteLine();
+                    - Vuelca los Valores actuales de Mail/razonsocial/cuit en las variables AUX
+                    - vuelca los Valores actuales en datosObjetos* en nuevosdatosTodosObjetos*                     
+                    - limpia la variable datosObjeto. 
+                    -  * Al haber igresado hasta aqui, los datos en AUX pertenecerían a otro contribuyente, 
+                         asi que se renuevan, pero despues de haber volcado el contenido anterior. Luego 
+                         tambien se renueva datosTodosObjetos* y se limpia datosObjeto*;
+
+               Sale del If1. 
+
+             - suma counter;  y   contador;  
+             - Actualiza barraLeidos.Value con counter. 
+                
+                
+             - El ultimo Row del txt va a ser cargado fuera del while. como los datos quedan cargados, pero se vuelcan en la siguiente entrada
+               el WHILE corta cuando ya no hay lineas de txt, pero aun va a quedar un mail mas por volcar cuando salga. 
+
+             */
+            #endregion
+
+            {
+                this.LeerLinea(line); //Trim(ej255, 1); 
+                #region
+                /* acá se envia el contenido de "line" a un método donde trabaja el combobox "IMPUESTO" 
+                                       alli con el método "TrimEnd(' ')" se seleccionan diferentes partes de la linea del Txt.
+
+                                       datos :                         |  Ej: 
+                
+                                                mail                   :  estudiojgarcia@gmail.com
+                                                razonsocial            :  pastormerlo celia isabel
+                                                cuit                   :  27149145791    
+
+                                                 
+                                                objetoFormateado       :  0190117251
+                                                montoCuota             :  7.780,90          
+                                                montoAnual             :  31.123,90
+                                                plantadescri (complem) :  B  (baldio)
+
+
+                                                fechaOpcion            :  (la que se elija en formulario)    
+                                                fechaVencimiento       :  martes 23 de febrero de 2021
+                                                fechaVencimientoNumero :  23/02/2021 ( Formato del .Txt,  no se usa en el final)
+                                                objeto                 :      0190117251
+                                                codigoElectronico      :  00100190117251    
+                                                debitoCredito          :  0
+                                                buenContribuyente      :  0    
+                                                Variable               :  "prueba automotor baldio/edificado/complementario" 
+                                                Impuesto               :  ComboBox del principio.
+                                                porcentaje             :  (En complementario)   
+                                                anio                   :  (En complementario; trim), otros ; "2020"      
+                                                cuota                  :  (En complementario; trim), Automotor y Embarcaciones ; "3"
+                                                
+                                       */
+
+                #endregion
+
+                if (mailAux == string.Empty) // siempre vacio la primera vez
+                {
+                    mailAux = mail; 
+                    razonsocialAux = razonsocial; //nombre del conytibuyente
+                    cuitAux = cuit;
+                    //ultimoMail = mail;
+                }
+
+                this.ArmarDatosMail();  // HTML
+                #region
+                /*  ----> Carga los datos con tags HTML, Forma el String "datosObjeto" 
+                                          con toda la data de cada row. de cada variable obtenida en 'LeerLinea()'
+                                          Lo va a volcar en la variable: "todosDatosObjetos"  
+                
+                                             Datos -trim:-      |          EJ: 
+                
+                                         objetoFormateado       :     0190117251
+                                         cuotaNumero            :     Imprime solo Palabra: 'Cuota'. (?) (y el valor de esta variable?) 
+                                         montoCuota             :     7.780.90 
+                                         medioPago              :     www.ARBA.gov.ar
+
+                                         montoAnual (checked)   :     31.123,90 
+                                         plantadescri (complem) :     B  (baldio)
+ 
+                                       */
+                #endregion
+
+
+                //If 1 : 
+                #region
+
+
+                if ((mail != mailAux) || (razonsocial != razonsocialAux))// || (cuit != cuitAux)) PRIMERA VEZ SON IGUALES: si no se parecen, es otro contribuyente. o el mismo con diferente mail. 
+                {
+
+                    //IF 0: - checked* 
+                    if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail))// Ñ:De este conjunto de iIFs siempre va a salir cantidadMailIgual = 0, y por tanto "mailLinea = string.Format("{0}|", mailAux);"
+                    {
+                         cantidadMailIgual++;
+                    }
+                    else
+                    {
+                         cantidadMailIgual = 0;             
+                    }                   
+                    if (cantidadMailIgual == 0)
+                    {
+                         mailLinea = string.Format("{0}|", mailAux); //SIEMPRE ESTE              
+                    }
+                    else
+                    {
+                         mailLinea = string.Format("{0}+{1}|", mailAux, cantidadMailIgual.ToString());                  
+                    }
+
+
+                    ultimoMail = mailAux;
+
+                    /*"MAilLinea": Esta es la Linea que se forma en el CSV!!!*/
+
+                    // Console.WriteLine("primer datos objetos B ----------------->" + datosTodosObjetos);
+
+                    // A
+
+                    mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", razonsocialAux, this.formatearCuit(cuitAux), fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje); //0 - 6 y 8  = datos desde "LeerLinea()", 7 = ArmarDatosMail(). 
+                    //Console.WriteLine("Fecha Ven B ------------->" + fechaVencimiento);
+                   
+
+                    /*mailLinea ya tiene a estas alturas TODO el contenido que se ve volcado en una linea del .csv*/
+                    //cont++;   
+                    Console.WriteLine("row de while--->" +  mailLinea);
+                    Console.WriteLine(" ");
+
+                    if (escritos == cantidadCorte)
+                    {
+                        SWinforme.Write(string.Format("Con {0} suscripciones y {1} mails para enviar", contador, escritos));
+                        SWinforme.WriteLine();
+
+                        escritos = 0;
+                        contador = 0;
+                        cantidadArchivosGenerados++;
+                        sw.Flush();
+                        sw.Close();
+
+                        nombreArchivoGenerado = string.Format("{0}-Parte-{1}.csv", txtDestino, cantidadArchivosGenerados);//SISTE.BAL.C012021.CO - copia(20).txt-Parte-1.csv ¿?
+
+                        sw = new System.IO.StreamWriter(nombreArchivoGenerado);
+                        SWinforme.Write(string.Format("Archivo ** {0} **", nombreArchivoGenerado));                        
+                        this.EscribirCabecera(sw);
+                    }
+                    
+                    distintos++;//
+                    escritos++;//
+                   
+
+                    if (distintos <= this.barraGenerados.Maximum)
+                    {
+                        this.barraGenerados.Value = distintos;       //                 
+                    }                    
+
+
+                     // volcado final: 
+
+                    sw.Write(mailLinea);
+                    sw.WriteLine();
+
+
+
+
+
+                    /* Al haber igresado hasta aqui, los datos en AUX perteneces a otro contribuyente, 
+                     asi que se renuevan, pero despues de haber volcado el contenido anterior. Luego 
+                     tambien se renueva datosTodosObjetos* y se limpia datosObjeto*;
+                    */
+
+                    mailAux = mail;
+                    razonsocialAux = razonsocial;
+                    cuitAux = cuit;                   
+                    datosTodosObjetos = datosObjeto;                    
+                    datosObjeto = string.Empty;
+                }
+                else
+                #endregion
+                {  // si mail y nombre son iguales. 
+                    datosTodosObjetos += datosObjeto;
+
+
+                    conta++; 
+                    //Console.WriteLine("primer datos objetos A----------------->" + datosTodosObjetos);
+                }
+               
+
+                counter++;   //único lugar que COUNTER suma. Cantidad de Rows Leidos.   
+                contador++; //único lugar que CONTADOR suma. 
+
+                if (counter <= this.barraLeidos.Maximum)
+                {
+                    this.barraLeidos.Value = counter; 
+                }                
+
+               
+
+            }// end while
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //If 2  (igual a IF 0) - checked* // cuenta +1 x cada cambio de mail. 
+            #region
+            if ((this.DiferenciarMails.Checked) && (mailAux == ultimoMail)) 
+            {
+                cantidadMailIgual++;
+            }
+            else
+            {
+                cantidadMailIgual = 0;
+            }
+            if (cantidadMailIgual == 0)
+            {
+                mailLinea = string.Format("{0}|", mailAux);
+            }
+            else
+            {
+                mailLinea = string.Format("{0}+{1}|", mailAux, cantidadMailIgual.ToString());
+            }
+            #endregion
+
+
+            #region
+
+            ultimoMail = mailAux; 
+
+            /*MailLinea  se forma a partir de la suma
+             * de los dos grupos: 0 - 6 y 8 y el <ta> de 7 */
+
+               // B 
+            mailLinea += string.Format("{0}|Cuit: {1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}", this.formatearCuit(cuitAux), objetoFormateado, fechaVencimiento, fechaOpcion, anio, cuota, impuesto, datosTodosObjetos, porcentaje);  // y la razon social (nombre) ?
+
+           // Console.WriteLine("Fecha 3------------->" + fechaOpcion);
+
+            // Console.WriteLine("row solo  +++++++++>" + mailLinea);
+
+            sw.Write(mailLinea);
+            sw.WriteLine();
+
+            mailAux = mail;
+            razonsocialAux = razonsocial;
+            cuitAux = cuit;
+
+            distintos++;
+            escritos++;
+
+            SWinforme.Write(string.Format("Con {0} suscripciones y {1} mails para enviar", contador, escritos));
+            SWinforme.WriteLine();
+
+            SWinforme.Flush();
+            SWinforme.Close();
+            sw.Flush();
+            sw.Close();
+            file.Close();
+            string mensaje = string.Empty;
+
+            #endregion
+
+            //If 3 
+            #region   
+            if (counter != cantidadAleer)
+            {
+                mensaje = string.Format("La cantidad de suscripciones configuradas ({0}) y es distinta a la cantidad de registros leidos ({1}). De todas maneras se generaron {2} mails para enviar.", cantidadAleer, counter, distintos);
+                MessageBox.Show(mensaje, "Cantidad de registros ERRONEA!!");
+            }
+            else
+            {
+                mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar. Armar bases?", counter.ToString(), distintos.ToString());
+
+
+                this.barraGenerados.Value = cantidadAleer;  // agregado Ñ para que la barra de Generados termine. 
+
+
+
+
+
+                if (MessageBox.Show(mensaje, "Control Totales ATENCION", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    this.InformarArchivosGenerados();
+                }
+
+            }
+            #endregion     
+        }
+
+
+
+
+
+
+        private void LeerLinea(string line)
+        {
+            switch (this.Impuesto.SelectedIndex)
+            {
+                case 0:
+                case 1:
+                    {
+                        //String.TrimEnd - String.Substring
+                        #region
+
+                        /*The String.TrimEnd method removes characters 
+                         * from the end of a string, 
+                         * creating a new string object
+                         
+                        ------
+
+                        "String.Substring"  toma el primer parametro 
+                        y parte desde ese caracter, 
+                        por distancia igual al segundo 
+                        parametro y lo devuleve. 
+
+                        ------
+
+                        el archivo de texto tiene las columnas separadas
+                        por las distancias marcadas en el TrimEnd.
+
+                        ------
+
+                        Si el numero sugerido no es el mismo de lecturas hechas
+                        no se general el .zip (some reazon)
+
+                        */
+                        #endregion
+
+                        mail = line.Substring(0, 255).TrimEnd(' ').ToLower();
+                            //Console.WriteLine(mail + " -----> mail");
+                        objeto = line.Substring(255, 11).TrimEnd(' ');
+                            //Console.WriteLine(objeto + " -----> objeto");
+                        objetoFormateado = objeto.ToUpper();
+                            //Console.WriteLine(objetoFormateado + " -----> objeto formateado");
+                        razonsocial = line.Substring(266, 60).TrimEnd(' ');// nombre
+                            //Console.WriteLine(razonsocial + " -----> razon social");
+                        porcentaje = string.Empty;
+                        fechaVencimiento = Convert.ToDateTime(line.Substring(334, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
+                            //Console.WriteLine(fechaVencimiento + " -----> fecha de vencimiento ");
+                        fechaVencimientoNumero = line.Substring(334, 10).TrimEnd(' ');
+                            //Console.WriteLine(fechaVencimientoNumero + " -----> fecha de vencimiento numero");
+
+                        montoCuota = line.Substring(345, 17).Trim(' ');
+                            //Console.WriteLine(montoCuota + " -----> monto cuota");
+                        montoAnual = line.Substring(362, 16).Trim(' ');
+                            //Console.WriteLine(montoAnual + " -----> monto anual");
+                        codigoElectronico = line.Substring(378, 14).Trim(' ');
+                            //Console.WriteLine(codigoElectronico + " -----> codigo electronico");
+                        debitoCredito = line.Substring(392, 1).Trim(' ');
+                            //Console.WriteLine(debitoCredito + " -----> debito credito");
+                        buenContribuyente = line.Substring(393, 1).Trim(' ');
+                            //Console.WriteLine(buenContribuyente + " -----> buen contribuyente");
+                        cuit = line.Substring(394, 11).TrimEnd(' ');
+                            //Console.WriteLine(cuit + " -----> cuit ");
+
+
+                        Variable = "Prueba  Automotor" ;
+
+
+                        porcentaje = "20";
+                          anio = "2020";
+                          cuota = "3";
+
+                        break;
+                    }
+                case 2:
+                case 3:
+                case 4:
+                    {
+                        //Leo Inmo
+                        mail = line.Substring(0, 255).TrimEnd(' ').ToLower();
+                            //Console.WriteLine(mail +" -----> mail");
+                        objeto = line.Substring(255, 11).TrimEnd(' ');
+                            //Console.WriteLine(objeto + " -----> objeto");
+                        objetoFormateado = formatearObjetoInmobiliario(objeto);
+                            //Console.WriteLine(objetoFormateado + " -----> objetoformateado");
+                        razonsocial = line.Substring(266, 60).TrimEnd(' ');
+                            //Console.WriteLine(razonsocial + " -----> razon social");
+                        porcentaje = string.Empty;
+                        fechaVencimiento = Convert.ToDateTime(line.Substring(334, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
+                            //Console.WriteLine(fechaVencimiento + " ----->fecha de vencimiento");
+                        fechaVencimientoNumero = line.Substring(334, 10).TrimEnd(' ');
+                            //Console.WriteLine(fechaVencimientoNumero + " -----> fecha de vencimiento numero");
+                        montoCuota = line.Substring(345, 17).Trim(' ');
+                            //Console.WriteLine(montoCuota + " -----> monto cuota");
+                        montoAnual = line.Substring(362, 16).Trim(' ');
+                            //Console.WriteLine(montoAnual + " -----> monto anual");
+
+                        //codigoElectronico = line.Substring(378, 14).Trim(' ');
+
+                        debitoCredito = line.Substring(392, 1).Trim(' ');
+                            //Console.WriteLine(debitoCredito + " -----> debito credito");
+                        buenContribuyente = line.Substring(393, 1).Trim(' ');
+                            //Console.WriteLine(buenContribuyente + " -----> buen contribuyente");
+                        cuit = line.Substring(394, 11).TrimEnd(' ');
+                            //Console.WriteLine(cuit  + " -----> cuit");
+
+                        Variable = "Prueba Edificacion -baldio -rural ";
+
+                        break;
+                    }
+                case 5:
+                    {
+                        //Leo Comple
+                        //mail = line.Substring(0, 255).TrimEnd(' ').ToLower();
+                        //objeto = line.Substring(255, 11).TrimEnd(' ');
+                        //objetoFormateado = formatearCuit(objeto);
+                        //razonsocial = line.Substring(275, 60).TrimEnd(' ');
+                        //planta = line.Substring(347, 1).Trim(' ');
+                        //debitoCredito = line.Substring(348, 1).Trim(' ');
+                        //buenContribuyente = line.Substring(349, 1).Trim(' ');
+                        //cuit = objeto;
+                        this.LeerLineaNuevo(line);
+                        break;
+                    }
+
+                default:
+
+                    break;
+            }
+
+            TextInfo myTI = CultureInfo.CurrentCulture.TextInfo;
+            razonsocial = myTI.ToTitleCase(razonsocial);
+
+        }
+
+        private void LeerLineaNuevo(string line)
+        {
+            mail = line.Substring(0, 120).TrimEnd(' ').ToLower();
+            objeto = line.Substring(120, 11).TrimEnd(' ');
+            objetoFormateado = this.formatearObjeto(objeto);
+            planta = line.Substring(131, 1).TrimEnd(' ');
+            razonsocial = line.Substring(132, 60).TrimEnd(' ');
+            porcentaje = line.Substring(192, 2).TrimEnd(' ');
+            anio = line.Substring(194, 4).TrimEnd(' ');
+            cuota = line.Substring(198, 2).TrimEnd(' ');
+            fechaVencimiento = Convert.ToDateTime(line.Substring(200, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
+            fechaVencimientoNumero = line.Substring(200, 10).TrimEnd(' ');
+            montoCuota = line.Substring(210, 17).Trim(' ');
+            montoAnual = line.Substring(227, 17).Trim(' ');
+            debitoCredito = line.Substring(244, 1).Trim(' ');
+            cuit = line.Substring(245, 11).TrimEnd(' ');
+
+            Variable = "Prueba  Complementario ";
+
+            //Le pongo si es con anual o no.
+            if (ConAnual.Checked)
+            {
+                cuota = cuota + " y Saldo Anual";
+            }
+
+            switch (planta)
+            {
+                case "B":
+                    {
+                        plantaDescri = "Baldio";
+                        break;
+                    }
+                case "E":
+                    {
+                        plantaDescri = "Edificado";
+                        break;
+                    }
+                case "R":
+                    {
+                        plantaDescri = "Rural";
+                        break;
+                    }
+                default:
+                    break;
+            }
+
+
+            TextInfo myTI = CultureInfo.CurrentCulture.TextInfo;
+            razonsocial = myTI.ToTitleCase(razonsocial);
+
+        }
+
+
+
+        private void InformarArchivosGenerados()
+        {
+            #region
+            /*Se tiene contacto con la carpeta donde se va a deja rel archivo Zip.  "DirectoryInfo"
+               * Se lo crea, y agrega a esta carpeta.                               "zip = string.Format("{0}.zip", txtDestino)"
+               * se toma el nombre para buscarlo con un foreach. 
+               * Hay acciones de apertura y escritura de zip.
+               * ...
+               * Creado el archivo, da mensaje por pantalla. 
+
+
+
+            txtDestino:  se usa para tener el nombre del archivo original presnete, 
+                           y usarlo para crear el nuevo con ese nombre incluido.  
+             Carpeta destino: di 
+
+             */
+
+            #endregion
+
+            DirectoryInfo di = new DirectoryInfo(".\\"); //la carpeta de guardado de los archivos es la carpeta POR DEFECTO "Release" dentro del proyecto. 
+            txtDestino = "archivin1.txt";
+
+
+            FileInfo[] archivos = di.GetFiles(txtDestino + "*"); // (carga  archivos desde origen "Release") ej: '.txt-Parte-1.csv' ( y sólo los que se llamen como "el modleo d ebusqueda"
+
+
+
+            string zip = string.Format("{0}.zip", txtDestino); // destino =  al txt elegido : 'try(20).txt'
+
+            StreamReader r;
+
+            using (FileStream zipToOpen = new FileStream(zip, FileMode.Create)) //creacion de zip
+            {
+               
+                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))  //apertura y escritura
+                {
+
+                    foreach (FileInfo fileToCompress in archivos) //los 'archivos' son los que haya en la carpeta 'di' (entra aqui una sola vez) 
+                    {                        
+                            ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name); //abre el zip, Updatea cada archivo del array presente dentro del zip
+                       
+                        using (StreamWriter writer = new StreamWriter(readmeEntry.Open())) //la ruta de escritura del StreamWriter serán los NOMBRES que lleguen del foreach. 
+                            {
+                                r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
+                                writer.WriteLine(r.ReadToEnd());
+                                r.Close();
+                                r.Dispose();
+                        }                     
+                    }
+                }
+            }
+            foreach (FileInfo fileToCompress in archivos)
+            {
+                File.Delete(fileToCompress.FullName);
+            }
+
+
+            string mensaje = string.Format("Se generó el archivo {0}\\{1} con los datos para el envío de las campañas. Colocar dicho archivo en {2} y avisar a Mesa de ayuda.", di.FullName, zip, directorioDestino);
+            MessageBox.Show(mensaje);
+        }
+
+        private string formatearCuit(string pCuit)
+        {
+            string cuitFormateado = string.Empty;
+            if (pCuit.Length == 11)
+            {
+                string primeraParte = pCuit.Substring(0, 2);
+                string dni = pCuit.Substring(2, 8);
+                string digito = pCuit.Substring(10, 1);
+                cuitFormateado = string.Format("{0}-{1}-{2}", primeraParte, dni, digito);
+            }
+            return cuitFormateado;
+        }
+
+        
+        private void habilitarGenerar()
+        {
+            this.txtArchivoOrigen.Text = txtOrigen;  // vuelca le valor de txtorigen (el path del txt que se clickea en la ventana                                                emergente (Boton Origen) y lo muestra por pantalla en el cuadro de texto.       
+            this.Generar.Enabled = (txtOrigen != string.Empty); //( impuesto esta bueno: boton true, si txt es true ;)  )
+        }
+
+        private void EscribirCabecera(StreamWriter pSw)
+        {
+            if (this.ConCabecera.Checked)
+            {
+                pSw.Write("email|nombre|cuit|fechav|fechao|anio|cuota|impuesto|datos|descuento");
+                pSw.WriteLine(); //salto de linea
+
+            }
+
+        }
+ 
+
+        private string formatearObjeto(string pObjeto)
+        {
+            string resultado;
+            switch (this.Impuesto.SelectedIndex)
+            {
+                case 0:
+                    {
+                        //Es auto
+                        resultado = pObjeto;
+                        break;
+                    }
+                case 1:
+                    {
+                        //Es Emba
+                        resultado = pObjeto;
+                        break;
+
+                    }
+                case 2:
+                    {
+                        //Es Edificado
+                        resultado = formatearObjetoInmobiliario(pObjeto);                       
+                        break;
+                    }
+                case 3:
+                    {
+                        //Es Baldio
+                        resultado = formatearObjetoInmobiliario(pObjeto);
+                        break;
+                    }
+                case 4:
+                    {
+                        //Es Rural
+                        resultado = formatearObjetoInmobiliario(pObjeto);
+                        break;
+                    }
+                case 5:
+                    {
+                        //Es Complementario
+                        resultado = formatearCuit(pObjeto);
+                        break;
+                    }
+
+                default:
+                    {
+                        resultado = pObjeto;
+                        break;
+                    }
+            }
+            return resultado;
+        }
+
+        private string formatearObjetoInmobiliario(string pObjeto)
+        {
+           
+            string partido = pObjeto.Substring(0, 3).TrimEnd(' ');
+            string partida = pObjeto.Substring(3, 6).TrimEnd(' ');
+            string digito = pObjeto.Substring(9, 1).TrimEnd(' ');
+
+            return string.Format("{0}-{1}-{2}", partido, partida, digito);
+  
+        }       
+
+        private void ArmarDatosMail()  //armado del mail con los tags HTML. 
+        {
+
+            // Region : Aqui se define 'medioPago': 
+
+                    #region
+            switch (debitoCredito) // dato definito en Procesar() ---> leerLinea()  
+            {
+                case "1":
+                    {
+                        medioPago = "Débito en Cuenta";
+                        break;
+                    }
+                case "D":
+                    {
+                        medioPago = "Débito en Cuenta";                        
+                        break;
+                    }
+                case "2":
+                    {
+                        medioPago = "Tarjeta de Crédito";                        
+                        break;
+                    }
+                case "0":
+                case "C":
+                    {
+                        medioPago = string.Format("<a href=\"" + txturl.Text + "\">Ingresar</a>", objeto);
+                                                
+                        /*
+                        if (this.Impuesto.SelectedIndex == 5)
+                        {
+                            //medioPago = "<a href=\"https://sso.arba.gov.ar/Login/login?service=http%3A%2F%2Fwww4.arba.gov.ar%2FLiqPredet%2Fsso%2FInicioLiquidacionIIC.do%3FFrame%3DNO%26origen%3DWEB%26imp%3D10%26cuit%3D\">Ingresar</a>";
+                            medioPago =  "<a href=\"https://www.arba.gov.ar/aplicaciones/LiqPredet.asp?imp=10&Fame=NO&origen=WEB&op=IIC\">Ingresar</a>";
+                        }
+                        else
+                        {
+                            medioPago = string.Format("<a href=\"http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D{0}%26opc%3DLIC%26Frame%3DSI%26oi%3D{1}\">Ingresar</a>", impuestoLiquidar, objeto);
+                        }      
+                        */
+                        break;
+                    }
+             /*   case "C":
+                    {
+                        if (this.Impuesto.SelectedIndex == 5)
+                        {
+                            medioPago = "<a href=\"https://sso.arba.gov.ar/Login/login?service=http%3A%2F%2Fwww4.arba.gov.ar%2FLiqPredet%2Fsso%2FInicioLiquidacionIIC.do%3FFrame%3DNO%26origen%3DWEB%26imp%3D10%26cuit%3D\">Ingresar</a>";
+                        }
+                        else
+                        {
+                            medioPago = string.Format("<a href=\"http://www.arba.gov.ar/AplicacionesFrame.asp?url=Aplicaciones%2FLiquidacion%2Easp%3Fimp%3D{0}%26opc%3DLIC%26Frame%3DSI%26oinombreImpuesto%3D{1}\">Ingresar</a>", impuestoLiquidar, objeto);
+                        }
+                        break;
+                    }*/
+                default:
+                    {
+                        // medioPago = "ERROR";
+                        // break;
+
+                        /* Automotores entra acá por defaoult, el "txturl.text" de 
+                           automotores suma "+ {0}" que acá 
+                           va a tomar el valor de 'objeto' */
+
+
+
+                        medioPago = string.Format("<a href=\"" + txturl.Text + "\">Ingresar</a>", objeto); 
+                        break;
+                    }
+            }
+            #endregion
+
+            //MAIN     
+
+            if (this.Impuesto.SelectedIndex == 5)
+            {
+                datosObjeto = "<tr class='datos'>";
+                datosObjeto += string.Format("<td class='gris'>{0} - {1}</td>", objetoFormateado, plantaDescri);
+                datosObjeto += string.Format("<td class='amarillo'>Cuota {0}</td>", cuotaNumero);
+                datosObjeto += string.Format("<td class='amarillo'>{0}</td>", montoCuota);
+                datosObjeto += string.Format("<td class='gris'>{0}</td>", medioPago);
+               // datosObjeto += string.Format("<td class=''>{0}</td>", Variable);
+
+                datosObjeto += "</tr>";
+            }
+            else
+            {
+                if (ConAnual.Checked)
+                {
+                    datosObjeto = "<tr class='datos'>";
+                    datosObjeto += string.Format("<td rowspan='2' class='gris'>{0}</td>", objetoFormateado);
+                    datosObjeto += string.Format("<td class='amarillo'>Cuota {0}</td>", cuotaNumero);
+                    datosObjeto += string.Format("<td class='amarillo'>{0}</td>", montoCuota);
+                    datosObjeto += string.Format("<td rowspan='2' class='gris'>{0}</td>", medioPago);
+                    datosObjeto += "</tr>";
+                    datosObjeto += "<tr class='datos'><td class='blanco'>Anual</td>";
+                    datosObjeto += string.Format("<td class='blanco'>{0}</td>", montoAnual);
+                   // datosObjeto += string.Format("<td class=''>{0}</td>", Variable);
+                    datosObjeto += "</tr>";
+                }
+                else
+                {
+                    datosObjeto = "<tr class='datos'>";
+                    datosObjeto += string.Format("<td class='gris'>{0}</td>", objetoFormateado); //0190117251
+                    datosObjeto += string.Format("<td class='amarillo'>Cuota {0}</td>", cuotaNumero);// Palabra: 'Cuota'. (?) (y cuota numero?)
+                    datosObjeto += string.Format("<td class='amarillo'>{0}</td>", montoCuota);//7.780.90
+                    datosObjeto += string.Format("<td class='gris'>{0}</td>", medioPago);//www.ARBA.gov.ar
+                   // datosObjeto += string.Format("<td class='gris'>{0}</td>", Variable);
+                    datosObjeto += "</tr>";
+                }
+            }
+
+        }
+
+      
+    }
+}
+

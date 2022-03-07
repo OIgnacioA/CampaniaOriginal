@@ -1,0 +1,7 @@
+- Por que no esta "razonsocial" en mailLinea (b) ? ( los ultimos mails no tienen nombre )
+- En el HTML no hay etiqueta <table> </table>. (agregarán eso en mesa de ayuda)?
+- la barra de generados no temrina de llenarse. esto porque los mails generados siempre son menos que los registros leidos.
+      * que al terminar la lectura correcta de registros se cambie el valor de la barra a "maximo. this.barraGenerados.Value = cantidadAleer;"
+- Se puede tomar el dato 'anio' directamente del TXT? 
+- Agregar boton de cierre. 
+- que la ventana de "se generaron x mails" no cubra las barras. y que estas se refresquen al apretar 'Origen' otra vez. 

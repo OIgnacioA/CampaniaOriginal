@@ -1,0 +1,2 @@
+Se generearon los siguientes archivos:
+Archivo ** try(20).txt-Parte-1.csv ** Con 20 suscripciones y 13 mails para enviar

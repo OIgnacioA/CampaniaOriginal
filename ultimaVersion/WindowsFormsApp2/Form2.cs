@@ -161,7 +161,7 @@ namespace WindowsFormsApp2
             {
                 ArgumentoreaderNuevo = directorioDestino + "\\" + nombreArchivoGenerado;
                 ArgumentoOpcionCheck1 = ArgumentoreaderNuevo;
-                ArgumentoOpcionCheck2 = directorioDestino + txtDestino + "-Informe.txt";
+                ArgumentoOpcionCheck2 = directorioDestino + "\\" + txtDestino + "-Informe.txt";
 
             }
 
@@ -343,29 +343,24 @@ namespace WindowsFormsApp2
 
             if (counter != cantidadAleer)
             {
+
                 mensaje = string.Format("La cantidad de suscripciones configuradas ({0}) y es distinta a la cantidad de registros leidos ({1}). De todas maneras se generaron {2} mails para enviar.", cantidadAleer, counter, distintos);
                 MessageBox.Show(mensaje, "Cantidad de registros ERRONEA!!");
+
+                barraGenerados.Value = cantidadAleer;
+
             }
 
-            ///////////////////////////////////////////////////////
-            ///
-         
-            if (ModoNuevo.Checked == true)
+            mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar. Armar bases?", counter.ToString(), distintos.ToString());
+            if (MessageBox.Show(mensaje, "Control Totales ATENCION", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
 
-                mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar. Armar bases?", counter.ToString(), distintos.ToString());
-                if (MessageBox.Show(mensaje, "Control Totales ATENCION", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
+                this.barraGenerados.Value = cantidadAleer;
 
-                    this.barraGenerados.Value = cantidadAleer;
-
-                    t1.Start();
-
-                }
+                t1.Start();
 
             }
-           
-            /////////////////////////////////////////////////
+         
         }
 
         private string formatearCuit(string pCuit)
@@ -474,24 +469,99 @@ namespace WindowsFormsApp2
 
             ModifyProgressBarColor.SetState(BarraReloj, 3);
 
-            t3.Start();
-
-            ZipFile.CreateFromDirectory(directorioDestino, Desk);
-
-            
-            flagg2 = false;
-            BarraReloj.Value = 10;
+           
 
 
+            //////////////////////////////////////////////////////////////////////
 
-            string mensaje = string.Format("Se generó el archivo .Zip: ' {0}.Zip ', con los datos para el envío de las campañas y el archivo Original. en un .Zip ubicado en el Escritorio de su PC",  txtDestino);
-            MessageBox.Show(mensaje);
 
+            if (ModoOriginal.Checked == true)
+            {
+                t3.Start();
+
+                Console.WriteLine("modo original de zipeo");
+
+                InformarArchivosGenerados_Original();
+
+            }
+            else if (ModoNuevo.Checked == true)
+            {
+                Console.WriteLine("modo nuevo de zipeo ");
+
+                ZipFile.CreateFromDirectory(directorioDestino, Desk);
+
+                flagg2 = false;
+                BarraReloj.Value = 10;
+
+                string mensaje = string.Format("Se generó el archivo .Zip: ' {0}.Zip ', con los datos para el envío de las campañas y el archivo Original. en un .Zip ubicado en el Escritorio de su PC", txtDestino);
+                MessageBox.Show(mensaje);
+
+
+            }
+
+
+            ///////////////////////////////////////////////////////////////////
 
 
         }
 
- 
+
+        private void InformarArchivosGenerados_Original()
+        {
+
+            string Desk = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+            string Carpeta = ObtenerPath(txtDestino);
+            string txtDestin = "";
+
+
+            DirectoryInfo di = new DirectoryInfo(".\\");
+
+            txtDestin = ObtenerNombre(txtDestino);
+
+            string zip = string.Format("{0}.zip", txtDestino); // --aqui se establece la direccion destino del zip 
+
+            FileInfo[] archivos = di.GetFiles(txtDestin + "*"); //modelo de busqueda: asi se seleccionan archivos con cierto nombre. 
+            //Console.WriteLine("archivines []-----------------" + archivos[1]);
+
+
+            StreamReader r;
+
+            using (FileStream zipToOpen = new FileStream(zip, FileMode.Create)) 
+            {
+                using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))  
+                {
+                    foreach (FileInfo fileToCompress in archivos) 
+                    {
+                        ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name); 
+
+                        using (StreamWriter writer = new StreamWriter(readmeEntry.Open())) 
+                        {
+                            r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
+                            writer.WriteLine(r.ReadToEnd());
+                            r.Close();
+                            r.Dispose();
+                        }
+                    }
+                }
+            }
+           /*foreach (FileInfo fileToCompress in archivos)
+            {
+                File.Delete(fileToCompress.FullName);
+            }*/
+
+            flagg2 = false;
+            BarraReloj.Value = 10;
+
+            string mensaje = string.Format("Se generó el archivo {0}\\{1} con los datos para el envío de las campañas. Colocar dicho archivo en {2} y avisar a Mesa de ayuda.", di.FullName, zip, directorioDestino);
+            MessageBox.Show(mensaje);
+
+
+            Console.WriteLine("di?----------"+di.FullName);
+        }
+
+
+
         private void EscribirCabecera(StreamWriter pSw)
         {
             if (this.ConCabecera.Checked)
@@ -508,9 +578,9 @@ namespace WindowsFormsApp2
             txtOrigen = this.Origen.FileName;
             this.habilitarGenerar();
 
-            Console.WriteLine("directorioDestino-------------" + directorioDestino);
+          /*  Console.WriteLine("directorioDestino-------------" + directorioDestino);
             Console.WriteLine("directorioOrigen-------------" + directorioOrigen);
-            Console.WriteLine("txtOrigen-------------" + txtOrigen);
+            Console.WriteLine("txtOrigen-------------" + txtOrigen);*/
         }        
 
         private void habilitarGenerar()
