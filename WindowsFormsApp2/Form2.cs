@@ -49,6 +49,7 @@ namespace WindowsFormsApp2
         string fechaOpcion = string.Empty;
         bool flagg2 = true; 
         string Desk = string.Empty;
+        string fullPath; 
         //string descuento = string.Empty;
 
         string nombreImpuesto = string.Empty;
@@ -87,6 +88,7 @@ namespace WindowsFormsApp2
             {                
                 impuesto = this.Impuesto.Text;
                 txtDestino = this.Origen.FileName;
+                fullPath = txtDestino; 
 
                 ///////////////////////////////////////
 
@@ -458,18 +460,14 @@ namespace WindowsFormsApp2
         private void InformarArchivosGenerados()
         {
 
+
             LabelZip.Enabled = true; 
             Thread t3 = new Thread(Reloj);
 
-            string Desk = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            Desk += "\\"+ txtDestino + ".zip";
-
-
-            // Argumentos de CreateFromDirectory: (desde donde tomar los archivos, donde generar el Zip - con ".zip" al final.
+           /* string Desk = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            Desk += "\\"+ txtDestino + ".zip";*/
 
             ModifyProgressBarColor.SetState(BarraReloj, 3);
-
-           
 
 
             //////////////////////////////////////////////////////////////////////
@@ -486,36 +484,83 @@ namespace WindowsFormsApp2
             }
             else if (ModoNuevo.Checked == true)
             {
-                Console.WriteLine("modo nuevo de zipeo ");
+                t3.Start();
 
-                ZipFile.CreateFromDirectory(directorioDestino, Desk);
+                Console.WriteLine("modo nuevo de zipeo");
+                FileInfo fileinfo = new FileInfo(fullPath);
+                long peso = fileinfo.Length;
 
-                flagg2 = false;
-                BarraReloj.Value = 10;
+                DirectoryInfo di = new DirectoryInfo(directorioDestino); //(".\\");
 
-                string mensaje = string.Format("Se generó el archivo .Zip: ' {0}.Zip ', con los datos para el envío de las campañas y el archivo Original. en un .Zip ubicado en el Escritorio de su PC", txtDestino);
-                MessageBox.Show(mensaje);
+                string zip = string.Format("{0}\\{1}.zip", directorioDestino, txtDestino); // --aqui se establece la direccion destino del zip 
 
-
-            }
+                FileInfo[] archivos = di.GetFiles(txtDestino + "*");
 
 
-            ///////////////////////////////////////////////////////////////////
+                StreamReader r;
+
+                using (FileStream zipToOpen = new FileStream(zip, FileMode.Create))
+                {
+                    using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+                    {
+                        foreach (FileInfo fileToCompress in archivos)
+                        {
+
+                            if (fileToCompress.Length == peso) { /* XD */ }
+                            else
+                            {
+
+                                ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name);
+                                using (StreamWriter writer = new StreamWriter(readmeEntry.Open()))
+                                {
+                                    r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
+                                    writer.WriteLine(r.ReadToEnd());
+                                    r.Close();
+                                    r.Dispose();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                foreach (FileInfo fileToCompress in archivos)
+                {
+                    if (fileToCompress.Length == peso) { /* XD */ }
+                    else
+                    {
+                        File.Delete(fileToCompress.FullName);
+                    }
+
+                }
+
+
+              flagg2 = false;
+              BarraReloj.Value = 10;
+
+              string mensaje2 = string.Format("Se generó el archivo .Zip: ' {0}.Zip ', con los datos para el envío de las campañas y el archivo Original. en un .Zip ubicado en: {1} ", txtDestino, directorioDestino);
+              MessageBox.Show(mensaje2);
 
 
         }
 
+              ///////////////////////////////////////////////////////////////////
 
-        private void InformarArchivosGenerados_Original()
+       
+    }
+
+
+    private void InformarArchivosGenerados_Original()
         {
 
-            string Desk = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
             string Carpeta = ObtenerPath(txtDestino);
             string txtDestin = "";
 
+            FileInfo fileinfo = new FileInfo(directorioDestino);
+            long peso = fileinfo.Length; 
+            
 
-            DirectoryInfo di = new DirectoryInfo(".\\");
+            DirectoryInfo di = new DirectoryInfo(Carpeta); //(".\\");
 
             txtDestin = ObtenerNombre(txtDestino);
 
@@ -531,24 +576,34 @@ namespace WindowsFormsApp2
             {
                 using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))  
                 {
-                    foreach (FileInfo fileToCompress in archivos) 
+                    foreach (FileInfo fileToCompress in archivos)
                     {
-                        ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name); 
 
-                        using (StreamWriter writer = new StreamWriter(readmeEntry.Open())) 
-                        {
-                            r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
-                            writer.WriteLine(r.ReadToEnd());
-                            r.Close();
-                            r.Dispose();
+                        if (fileToCompress.Length == peso) { /* XD */ }
+                        else { 
+
+                            ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name);
+                            using (StreamWriter writer = new StreamWriter(readmeEntry.Open()))
+                            {
+                                r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
+                                writer.WriteLine(r.ReadToEnd());
+                                r.Close();
+                                r.Dispose();
+                            }
                         }
                     }
                 }
             }
-           /*foreach (FileInfo fileToCompress in archivos)
-            {
-                File.Delete(fileToCompress.FullName);
-            }*/
+
+           foreach (FileInfo fileToCompress in archivos)
+           {
+                if (fileToCompress.Length == peso) { /* XD */ }
+                else
+                {
+                    File.Delete(fileToCompress.FullName);
+                }
+
+           }
 
             flagg2 = false;
             BarraReloj.Value = 10;
@@ -556,9 +611,7 @@ namespace WindowsFormsApp2
             string mensaje = string.Format("Se generó el archivo {0}\\{1} con los datos para el envío de las campañas. Colocar dicho archivo en {2} y avisar a Mesa de ayuda.", di.FullName, zip, directorioDestino);
             MessageBox.Show(mensaje);
 
-
-            Console.WriteLine("di?----------"+di.FullName);
-        }
+     }
 
 
 
