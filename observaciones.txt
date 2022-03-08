@@ -5,3 +5,9 @@
 - Se puede tomar el dato 'anio' directamente del TXT? 
 - Agregar boton de cierre. 
 - que la ventana de "se generaron x mails" no cubra las barras. y que estas se refresquen al apretar 'Origen' otra vez. 
+
+
+
+- Txtdestino: nombre del archivo. 
+- directorioDestino : donde va a parar el Zip. 
+- Si no tiene una direccion donde escribir los archivos nuevos: los guarda en la carpeta debug. https://www.youtube.com/watch?v=THUF5caM7Rw&t=173s (ver en 2:36 y 5:12)

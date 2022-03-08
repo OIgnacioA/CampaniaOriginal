@@ -95,10 +95,10 @@ namespace WindowsFormsApp2
                if (ModoOriginal.Checked  == true) {
 
 
-                    txtDestino = txtDestino.Replace(this.Origen.InitialDirectory, "");
+                    //txtDestino = txtDestino.Replace(this.Origen.InitialDirectory, "");
+                    txtDestino = ObtenerNombre(txtDestino);
 
-
-               } else if (ModoNuevo.Checked == true){
+                } else if (ModoNuevo.Checked == true){
 
                     txtDestino = ObtenerNombre(txtDestino);
 
@@ -156,8 +156,8 @@ namespace WindowsFormsApp2
 
             if (ModoOriginal.Checked == true)
             {
-                ArgumentoOpcionCheck1 = nombreArchivoGenerado;
-                ArgumentoOpcionCheck2 = txtDestino + "-Informe.txt";
+                ArgumentoOpcionCheck1 =  ObtenerPath(fullPath) + "\\" + nombreArchivoGenerado;
+                ArgumentoOpcionCheck2 = fullPath + "-Informe.txt";
             }
             else if (ModoNuevo.Checked == true)
             {
@@ -252,7 +252,7 @@ namespace WindowsFormsApp2
 
                         if (ModoOriginal.Checked == true)
                         {
-                            ArgumentoOpcionCheck1 = nombreArchivoGenerado;
+                            ArgumentoOpcionCheck1 = ObtenerPath(fullPath) + "\\" + nombreArchivoGenerado;
                          
                         }
                         else if (ModoNuevo.Checked == true)
@@ -381,33 +381,53 @@ namespace WindowsFormsApp2
 
         public string ObtenerPath(string nom)
         {   
-            int cont = 0; 
+            int cont = 0;
+            int cont2 = 0;
             string name = "";
             string Navn = "";
+            bool go = false; 
 
-            for ( int i = nom.Length - 1; i > 0; i--)
+            for (int i = nom.Length - 1; i > 0; i--)
             {
 
                 if (nom[i] == '\\')
                 {
+                    go = true; 
                     break;
                 }
 
-                name += nom[i];
-                cont++;
             }
 
 
-            int diff = nom.Length - cont; ;
-
-            for (int j = 0; j < diff; j++)
+            if (go == true)
             {
 
-                Navn += nom[j];
-            }
+                for (int i = nom.Length - 1; i > 0; i--)
+                {
+                    if (nom[i] == '\\')
+                    {
+                        cont2++; 
+                    }
 
+                    name += nom[i];
+                    cont++;
 
-            return Navn;
+                    if (cont2 == 1) {
+                        break;
+                    }
+                }
+
+                int diff = nom.Length - cont; ;
+
+                for (int j = 0; j < diff; j++)
+                {
+                    Navn += nom[j];
+                }
+
+                    return Navn;
+
+            }else { return nom; }
+
         }
 
 
@@ -418,7 +438,7 @@ namespace WindowsFormsApp2
             string Navn = "";
             
 
-            for (int i = nom.Length - 1; i > 0; i--)
+            for (int i = nom.Length - 1; i > -1; i--)
             {
                 if (nom[i] == '\\')
                 {
@@ -487,9 +507,7 @@ namespace WindowsFormsApp2
                 t3.Start();
 
                 Console.WriteLine("modo nuevo de zipeo");
-                FileInfo fileinfo = new FileInfo(fullPath);
-                long peso = fileinfo.Length;
-
+             
                 DirectoryInfo di = new DirectoryInfo(directorioDestino); //(".\\");
 
                 string zip = string.Format("{0}\\{1}.zip", directorioDestino, txtDestino); // --aqui se establece la direccion destino del zip 
@@ -506,9 +524,6 @@ namespace WindowsFormsApp2
                         foreach (FileInfo fileToCompress in archivos)
                         {
 
-                            if (fileToCompress.Length == peso) { /* XD */ }
-                            else
-                            {
 
                                 ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name);
                                 using (StreamWriter writer = new StreamWriter(readmeEntry.Open()))
@@ -518,26 +533,21 @@ namespace WindowsFormsApp2
                                     r.Close();
                                     r.Dispose();
                                 }
-                            }
+                                             
                         }
                     }
                 }
 
                 foreach (FileInfo fileToCompress in archivos)
                 {
-                    if (fileToCompress.Length == peso) { /* XD */ }
-                    else
-                    {
-                        File.Delete(fileToCompress.FullName);
-                    }
-
+                   File.Delete(fileToCompress.FullName);
                 }
 
 
               flagg2 = false;
               BarraReloj.Value = 10;
 
-              string mensaje2 = string.Format("Se generó el archivo .Zip: ' {0}.Zip ', con los datos para el envío de las campañas y el archivo Original. en un .Zip ubicado en: {1} ", txtDestino, directorioDestino);
+              string mensaje2 = string.Format("Se generó el archivo .Zip: ' {0}.Zip ', con los datos para el envío de las campañas y el archivo Original.ubicación en: {1} ", txtDestino, directorioDestino);
               MessageBox.Show(mensaje2);
 
 
@@ -553,10 +563,10 @@ namespace WindowsFormsApp2
         {
 
 
-            string Carpeta = ObtenerPath(txtDestino);
+            string Carpeta = ObtenerPath(fullPath);
             string txtDestin = "";
 
-            FileInfo fileinfo = new FileInfo(directorioDestino);
+            FileInfo fileinfo = new FileInfo(fullPath);
             long peso = fileinfo.Length; 
             
 
@@ -564,7 +574,7 @@ namespace WindowsFormsApp2
 
             txtDestin = ObtenerNombre(txtDestino);
 
-            string zip = string.Format("{0}.zip", txtDestino); // --aqui se establece la direccion destino del zip 
+            string zip = string.Format("{0}\\{1}.zip",Carpeta, txtDestino); // --aqui se establece la direccion destino del zip 
 
             FileInfo[] archivos = di.GetFiles(txtDestin + "*"); //modelo de busqueda: asi se seleccionan archivos con cierto nombre. 
             //Console.WriteLine("archivines []-----------------" + archivos[1]);
@@ -608,7 +618,7 @@ namespace WindowsFormsApp2
             flagg2 = false;
             BarraReloj.Value = 10;
 
-            string mensaje = string.Format("Se generó el archivo {0}\\{1} con los datos para el envío de las campañas. Colocar dicho archivo en {2} y avisar a Mesa de ayuda.", di.FullName, zip, directorioDestino);
+            string mensaje = string.Format("Se generó el archivo '{0}.Zip' con los datos para el envío de las campañas. Colocar dicho archivo en {1} y avisar a Mesa de ayuda.", txtDestino, directorioDestino);
             MessageBox.Show(mensaje);
 
      }
