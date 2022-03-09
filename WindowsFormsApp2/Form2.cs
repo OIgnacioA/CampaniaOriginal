@@ -87,30 +87,21 @@ namespace WindowsFormsApp2
             if (seguir)
             {                
                 impuesto = this.Impuesto.Text;
-                txtDestino = this.Origen.FileName;
-                fullPath = txtDestino; 
+                fullPath = txtOrigen; 
 
-                ///////////////////////////////////////
-
-               if (ModoOriginal.Checked  == true) {
+               //////////////////////////////////////////////////////////////////////////
 
 
-                    //txtDestino = txtDestino.Replace(this.Origen.InitialDirectory, "");
-                    txtDestino = ObtenerNombre(txtDestino);
+               if ((ModoOriginal.Checked  == true) || (ModoNuevo.Checked == true))  {
 
-                } else if (ModoNuevo.Checked == true){
+                    txtDestino = ObtenerNombre(txtOrigen);
 
-                    txtDestino = ObtenerNombre(txtDestino);
+               } 
 
-               }
-
-                Console.WriteLine("txtdestino   recortado-------------" + txtDestino);
-                // txtDestino = ObtenerNombre(txtDestino);
-
-                /////////////////////////////////////////////
-
+               //////////////////////////////////////////////////////////////////////////
 
                 this.procesar();
+
             }
             else
             {
@@ -359,7 +350,7 @@ namespace WindowsFormsApp2
 
                 this.barraGenerados.Value = cantidadAleer;
 
-                t1.Start();
+                t1.Start(); //InformarArchivosGenerados()
 
             }
          
@@ -383,7 +374,6 @@ namespace WindowsFormsApp2
         {   
             int cont = 0;
             int cont2 = 0;
-            string name = "";
             string Navn = "";
             bool go = false; 
 
@@ -409,7 +399,6 @@ namespace WindowsFormsApp2
                         cont2++; 
                     }
 
-                    name += nom[i];
                     cont++;
 
                     if (cont2 == 1) {
@@ -727,6 +716,7 @@ namespace WindowsFormsApp2
                     break;
                 }
             }
+
             this.Origen.InitialDirectory = directorioOrigen;
 
             directorioDestino += "Destino2022";
