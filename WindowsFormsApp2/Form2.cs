@@ -49,14 +49,19 @@ namespace WindowsFormsApp2
         string fechaOpcion = string.Empty;
         bool flagg2 = true; 
         string Desk = string.Empty;
-        string fullPath; 
+        string fullPath;
         //string descuento = string.Empty;
-
-        string nombreImpuesto = string.Empty;
-        
+        string CarpetaDestino = string.Empty;
+        string nombreImpuesto = string.Empty;      
         string datosObjeto = string.Empty;
-
         string impuestoLiquidar = string.Empty;
+        string nombreDeZip = string.Empty;
+
+        int contzip = 0;
+        
+
+
+
 
         string directorioOrigen = @"\\arba.gov.ar\DE\GGTI\Gerencia de Produccion\Mantenimiento\Boleta Electronica\Origen\";
         string directorioDestino = "\\arba.gov.ar\\DE\\GGTI\\Gerencia de Produccion\\Mantenimiento\\Boleta Electronica\\Destino\\";
@@ -141,13 +146,13 @@ namespace WindowsFormsApp2
 
 
             ////////////////////////////////////////////////////
-       
 
 
+            CarpetaDestino = ObtenerPath(fullPath);
 
             if (ModoOriginal.Checked == true)
             {
-                ArgumentoOpcionCheck1 =  ObtenerPath(fullPath) + "\\" + nombreArchivoGenerado;
+                ArgumentoOpcionCheck1 = CarpetaDestino + "\\" + nombreArchivoGenerado;
                 ArgumentoOpcionCheck2 = fullPath + "-Informe.txt";
             }
             else if (ModoNuevo.Checked == true)
@@ -243,7 +248,7 @@ namespace WindowsFormsApp2
 
                         if (ModoOriginal.Checked == true)
                         {
-                            ArgumentoOpcionCheck1 = ObtenerPath(fullPath) + "\\" + nombreArchivoGenerado;
+                            ArgumentoOpcionCheck1 = CarpetaDestino + "\\" + nombreArchivoGenerado;
                          
                         }
                         else if (ModoNuevo.Checked == true)
@@ -337,23 +342,32 @@ namespace WindowsFormsApp2
             if (counter != cantidadAleer)
             {
 
-                mensaje = string.Format("La cantidad de suscripciones configuradas ({0}) y es distinta a la cantidad de registros leidos ({1}). De todas maneras se generaron {2} mails para enviar.", cantidadAleer, counter, distintos);
-                MessageBox.Show(mensaje, "Cantidad de registros ERRONEA!!");
+                mensaje = string.Format("La cantidad de suscripciones configuradas ({0}) y es distinta a la cantidad de registros leidos ({1}). De todas maneras se generaron {2} mails para enviar. ¿Armar bases?", cantidadAleer, counter, distintos);
 
-                barraGenerados.Value = cantidadAleer;
+                if (MessageBox.Show(mensaje, "Cantidad de registros ERRONEA!!", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+
+                    this.barraGenerados.Value = cantidadAleer;
+
+                    t1.Start(); //InformarArchivosGenerados()
+
+                }
 
             }
-
-            mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar. Armar bases?", counter.ToString(), distintos.ToString());
-            if (MessageBox.Show(mensaje, "Control Totales ATENCION", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            else
             {
+                mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar. Armar bases?", counter.ToString(), distintos.ToString());
 
-                this.barraGenerados.Value = cantidadAleer;
 
-                t1.Start(); //InformarArchivosGenerados()
+                if (MessageBox.Show(mensaje, "Control Totales ATENCION", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
 
+                    this.barraGenerados.Value = cantidadAleer;
+
+                    t1.Start(); //InformarArchivosGenerados()
+
+                }
             }
-         
         }
 
         private string formatearCuit(string pCuit)
@@ -486,22 +500,22 @@ namespace WindowsFormsApp2
             {
                 t3.Start();
 
-                Console.WriteLine("modo original de zipeo");
-
                 InformarArchivosGenerados_Original();
 
             }
             else if (ModoNuevo.Checked == true)
             {
                 t3.Start();
-
-                Console.WriteLine("modo nuevo de zipeo");
              
                 DirectoryInfo di = new DirectoryInfo(directorioDestino); //(".\\");
-
-                string zip = string.Format("{0}\\{1}.zip", directorioDestino, txtDestino); // --aqui se establece la direccion destino del zip 
-
                 FileInfo[] archivos = di.GetFiles(txtDestino + "*");
+
+
+                ///////// comprobar que no exista ya un zip: cambiar nombre:
+
+                         string zip = VerificarZipPrevio(CarpetaDestino, archivos);
+
+                //////// string.Format("{0}\\{1}.zip", directorioDestino, txtDestino); // --aqui se establece la direccion destino del zip 
 
 
                 StreamReader r;
@@ -536,7 +550,7 @@ namespace WindowsFormsApp2
               flagg2 = false;
               BarraReloj.Value = 10;
 
-              string mensaje2 = string.Format("Se generó el archivo .Zip: ' {0}.Zip ', con los datos para el envío de las campañas y el archivo Original.ubicación en: {1} ", txtDestino, directorioDestino);
+              string mensaje2 = string.Format("Se generó el archivo .Zip: ' {0} ', con los datos para el envío de las campañas y el archivo Original.ubicación en: {1} ", nombreDeZip, directorioDestino);
               MessageBox.Show(mensaje2);
 
 
@@ -551,22 +565,26 @@ namespace WindowsFormsApp2
     private void InformarArchivosGenerados_Original()
         {
 
-
-            string Carpeta = ObtenerPath(fullPath);
             string txtDestin = "";
 
             FileInfo fileinfo = new FileInfo(fullPath);
             long peso = fileinfo.Length; 
             
 
-            DirectoryInfo di = new DirectoryInfo(Carpeta); //(".\\");
+            DirectoryInfo di = new DirectoryInfo(CarpetaDestino); //(".\\");
 
             txtDestin = ObtenerNombre(txtDestino);
 
-            string zip = string.Format("{0}\\{1}.zip",Carpeta, txtDestino); // --aqui se establece la direccion destino del zip 
-
             FileInfo[] archivos = di.GetFiles(txtDestin + "*"); //modelo de busqueda: asi se seleccionan archivos con cierto nombre. 
-            //Console.WriteLine("archivines []-----------------" + archivos[1]);
+           
+
+            /////// comprobar que no exista ya un zip: cambiar nombre:
+
+                   string zip = VerificarZipPrevio(CarpetaDestino, archivos);
+
+            /////// string zip = string.Format("{0}\\{1}.zip", CarpetaDestino, txtDestino); // --aqui se establece la direccion destino del zip 
+
+
 
 
             StreamReader r;
@@ -596,10 +614,16 @@ namespace WindowsFormsApp2
 
            foreach (FileInfo fileToCompress in archivos)
            {
+                string esZip = fileToCompress.Name; 
+
                 if (fileToCompress.Length == peso) { /* XD */ }
                 else
                 {
-                    File.Delete(fileToCompress.FullName);
+                    if (esZip.Contains(".zip")) { }
+                    else
+                    {
+                        File.Delete(fileToCompress.FullName);
+                    }
                 }
 
            }
@@ -607,12 +631,115 @@ namespace WindowsFormsApp2
             flagg2 = false;
             BarraReloj.Value = 10;
 
-            string mensaje = string.Format("Se generó el archivo '{0}.Zip' con los datos para el envío de las campañas. Colocar dicho archivo en {1} y avisar a Mesa de ayuda.", txtDestino, directorioDestino);
+            string mensaje = string.Format("Se generó el archivo ' {0} ' con los datos para el envío de las campañas. Colocar dicho archivo en {1} y avisar a Mesa de ayuda.", nombreDeZip, directorioDestino);
             MessageBox.Show(mensaje);
 
      }
 
+    public string VerificarZipPrevio(string Fuente, FileInfo[] ficheros)
+    {
 
+        int tempN = 0;
+        string tempS = "";
+        string tempS2 = "";
+        string zip = "";
+        int cont2 = 1;
+        int contParentesis = 0;
+
+
+
+            DirectoryInfo dire = new DirectoryInfo(Fuente);
+            FileInfo[] files = dire.GetFiles("*.zip");
+            string NombreArchivo = "";
+
+            foreach (FileInfo file in files) {
+
+                NombreArchivo = file.Name; 
+
+
+                if (NombreArchivo.Contains("_guardado"))
+                { //se busca el archivo con nombre de zip.
+
+
+                    for (int l = NombreArchivo.Length; l > -1; l--)
+                    {
+
+                        if (NombreArchivo[l - 1] == ')')
+                        { //Busca el parentesis------charAt mide contando el cero. Por eso se resta uno.
+
+                            int temp2 = l;
+
+                            ///Medir distancia entre parentesis
+                            while (NombreArchivo[temp2 - 2] != '(')
+                            {
+                                contParentesis++;
+                                temp2--;
+                            }
+
+                            temp2 = l;
+
+                            /// Tomar elementos ENTRE los parentesis
+                            while (cont2 <= contParentesis)
+                            {
+
+                                tempS += NombreArchivo[temp2 - 2];
+
+                                temp2--;
+                                cont2++;
+                            }
+
+                            /// Voltear numero dentro de los parentesis
+                            if (contParentesis > 1)
+                            {
+
+                                for (int n = tempS.Length - 1; n > -1; n--)
+                                {
+
+                                    tempS2 += tempS[n];
+                                }
+                            }
+                            else { tempS2 = tempS; }
+
+                            tempN = Int32.Parse(tempS2);
+                            tempS2 = "";
+                            tempS = "";
+                            temp2 = 0;
+                            cont2 = 1;
+                            contParentesis = 0;
+
+                            ///Seleccion del número mas grande entre los zips.
+
+                            if (contzip < tempN) { contzip = tempN; }
+                            //System.out.println("--------------->: " + ficheros[k].getName().charAt(l - 2));
+                            break;
+
+                        }
+                    }
+                }
+            }
+        
+
+        //////////////////////////////////////////////////////////////////////////////////
+        contzip++;
+
+        if (ModoOriginal.Checked == true)
+        {
+
+            nombreDeZip = txtDestino + "_guardado(" + contzip + ").zip";
+            zip = CarpetaDestino + "\\" + nombreDeZip;
+
+        }
+        else if (ModoNuevo.Checked == true)
+        {
+
+            nombreDeZip = txtDestino + "_guardado(" + contzip + ").zip";
+            zip = directorioDestino + "\\" + nombreDeZip;
+
+        }
+        ////////////////////////////////////////////////////////////////////////////////
+        contzip = 0;
+        return zip;
+    }
 
         private void EscribirCabecera(StreamWriter pSw)
         {
@@ -630,9 +757,12 @@ namespace WindowsFormsApp2
             txtOrigen = this.Origen.FileName;
             this.habilitarGenerar();
 
-          /*  Console.WriteLine("directorioDestino-------------" + directorioDestino);
-            Console.WriteLine("directorioOrigen-------------" + directorioOrigen);
-            Console.WriteLine("txtOrigen-------------" + txtOrigen);*/
+            ModoOriginal.Enabled = false;
+            ModoNuevo.Enabled = false;
+
+            /*  Console.WriteLine("directorioDestino-------------" + directorioDestino);
+              Console.WriteLine("directorioOrigen-------------" + directorioOrigen);
+              Console.WriteLine("txtOrigen-------------" + txtOrigen);*/
         }        
 
         private void habilitarGenerar()
