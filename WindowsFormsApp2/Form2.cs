@@ -356,7 +356,7 @@ namespace WindowsFormsApp2
             }
             else
             {
-                mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar. Armar bases?", counter.ToString(), distintos.ToString());
+                mensaje = string.Format("Se leyeron {0} suscripciones y se generaron {1} mails para enviar.   ¿Armar bases?", counter.ToString(), distintos.ToString());
 
 
                 if (MessageBox.Show(mensaje, "Control Totales ATENCION", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -513,7 +513,7 @@ namespace WindowsFormsApp2
 
                 ///////// comprobar que no exista ya un zip: cambiar nombre:
 
-                         string zip = VerificarZipPrevio(CarpetaDestino, archivos);
+                         string zip = VerificarZipPrevio(directorioDestino, archivos);
 
                 //////// string.Format("{0}\\{1}.zip", directorioDestino, txtDestino); // --aqui se establece la direccion destino del zip 
 
@@ -526,7 +526,11 @@ namespace WindowsFormsApp2
                     {
                         foreach (FileInfo fileToCompress in archivos)
                         {
+                            string esZip = fileToCompress.Name;
 
+                            if (esZip.Contains(".zip")) { /* XD */ }
+                            else
+                            {
 
                                 ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name);
                                 using (StreamWriter writer = new StreamWriter(readmeEntry.Open()))
@@ -536,14 +540,20 @@ namespace WindowsFormsApp2
                                     r.Close();
                                     r.Dispose();
                                 }
-                                             
+                            }               
                         }
                     }
                 }
 
                 foreach (FileInfo fileToCompress in archivos)
                 {
-                   File.Delete(fileToCompress.FullName);
+                    string esZip = fileToCompress.Name;
+
+                    if (esZip.Contains(".zip")) { }
+                    else
+                    {
+                        File.Delete(fileToCompress.FullName);
+                    }
                 }
 
 
@@ -586,7 +596,6 @@ namespace WindowsFormsApp2
 
 
 
-
             StreamReader r;
 
             using (FileStream zipToOpen = new FileStream(zip, FileMode.Create)) 
@@ -595,17 +604,23 @@ namespace WindowsFormsApp2
                 {
                     foreach (FileInfo fileToCompress in archivos)
                     {
-
+                        
                         if (fileToCompress.Length == peso) { /* XD */ }
-                        else { 
+                        else {
 
-                            ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name);
-                            using (StreamWriter writer = new StreamWriter(readmeEntry.Open()))
+                             string esZip = fileToCompress.Name;
+
+                            if (esZip.Contains(".zip")) { /* XD */ }
+                            else
                             {
-                                r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
-                                writer.WriteLine(r.ReadToEnd());
-                                r.Close();
-                                r.Dispose();
+                                    ZipArchiveEntry readmeEntry = archive.CreateEntry(fileToCompress.Name);
+                                    using (StreamWriter writer = new StreamWriter(readmeEntry.Open()))
+                                    {
+                                        r = new StreamReader(fileToCompress.Open(FileMode.Open, FileAccess.Read, FileShare.None));
+                                        writer.WriteLine(r.ReadToEnd());
+                                        r.Close();
+                                        r.Dispose();
+                                    }
                             }
                         }
                     }
