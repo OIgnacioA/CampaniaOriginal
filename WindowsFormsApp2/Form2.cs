@@ -56,6 +56,8 @@ namespace WindowsFormsApp2
         string datosObjeto = string.Empty;
         string impuestoLiquidar = string.Empty;
         string nombreDeZip = string.Empty;
+        int counter = 1;
+        int conterror = 0;
 
         int contzip = 0;
         
@@ -120,7 +122,6 @@ namespace WindowsFormsApp2
             int cantidadAleer = Convert.ToInt32(this.txtCantidad.Text);
             this.barraGenerados.Maximum = cantidadAleer;
             this.barraLeidos.Maximum = cantidadAleer;
-            int counter = 0;
             int contador = 0;
             int distintos = 0;
             int escritos = 0;
@@ -368,6 +369,9 @@ namespace WindowsFormsApp2
 
                 }
             }
+
+            Console.WriteLine("cantidad de errores: " + conterror);
+
         }
 
         private string formatearCuit(string pCuit)
@@ -672,7 +676,7 @@ namespace WindowsFormsApp2
                 NombreArchivo = file.Name; 
 
 
-                if (NombreArchivo.Contains("_guardado"))
+                if (NombreArchivo.Contains("_"))
                 { //se busca el archivo con nombre de zip.
 
 
@@ -740,14 +744,14 @@ namespace WindowsFormsApp2
         if (ModoOriginal.Checked == true)
         {
 
-            nombreDeZip = txtDestino + "_guardado(" + contzip + ").zip";
+            nombreDeZip = txtDestino + "_(" + contzip + ").zip";
             zip = CarpetaDestino + "\\" + nombreDeZip;
 
         }
         else if (ModoNuevo.Checked == true)
         {
 
-            nombreDeZip = txtDestino + "_guardado(" + contzip + ").zip";
+            nombreDeZip = txtDestino + "_(" + contzip + ").zip";
             zip = directorioDestino + "\\" + nombreDeZip;
 
         }
@@ -868,6 +872,10 @@ namespace WindowsFormsApp2
         }
         private void LeerLinea(string line)
         {
+
+
+            
+
             switch (this.Impuesto.SelectedIndex)
             {
                 case 0:
@@ -885,7 +893,30 @@ namespace WindowsFormsApp2
                         //codigoElectronico = line.Substring(378, 14).Trim(' ');
                         debitoCredito = line.Substring(392, 1).Trim(' ');
                         buenContribuyente = line.Substring(393, 1).Trim(' ');
-                        cuit = line.Substring(394, 11).TrimEnd(' ');
+
+
+                        try
+                        {
+
+
+                            cuit = line.Substring(394, 11).TrimEnd(' ');
+
+
+
+                        }
+                        catch (Exception e) {
+
+                            cuit = string.Empty; 
+                             Console.WriteLine("------------> Error de tipo ( " + e.Message + " ) En la      Línea: " + counter.ToString());
+
+                            conterror++;
+                            
+                        
+                        }
+
+                        Console.WriteLine("Cuit: " + cuit + ": en linea: " + counter.ToString());
+
+
                         porcentaje = "20";
                         anio = "2020";
                         cuota = "3";
@@ -908,7 +939,25 @@ namespace WindowsFormsApp2
                         //codigoElectronico = line.Substring(378, 14).Trim(' ');
                         debitoCredito = line.Substring(392, 1).Trim(' ');
                         buenContribuyente = line.Substring(393, 1).Trim(' ');
-                        cuit = line.Substring(394, 11).TrimEnd(' ');
+
+                        try
+                        {
+
+                            cuit = line.Substring(394, 11).TrimEnd(' ');
+
+                        }
+                        catch (Exception e)
+                        {
+
+                            cuit = string.Empty; 
+                            Console.WriteLine("------------> Error de tipo ( " + e.Message + " ) En la      Línea: " + counter.ToString());
+
+                            conterror++; // conteo de erroes de lectura
+
+                        }
+
+                        Console.WriteLine("Cuit: " + cuit + ": en linea: " + counter.ToString());
+
                         break;
                     }
                 case 5:
@@ -951,7 +1000,27 @@ namespace WindowsFormsApp2
             montoCuota = line.Substring(210, 17).Trim(' ');
             montoAnual = line.Substring(227, 17).Trim(' ');
             debitoCredito = line.Substring(244, 1).Trim(' ');
-            cuit = line.Substring(245, 11).TrimEnd(' ');
+
+
+            try
+            {
+
+                cuit = line.Substring(245, 11).TrimEnd(' ');
+
+            }
+            catch (Exception e)
+            {
+
+                cuit = string.Empty; 
+                Console.WriteLine("------------> Error de tipo ( " + e.Message + " ) En la      Línea: " + counter.ToString());
+
+                conterror++;
+            }
+
+            Console.WriteLine("Cuit: " + cuit + ": en linea: " + counter.ToString());
+
+
+
 
             //Le pongo si es con anual o no.
             if (ConAnual.Checked)
