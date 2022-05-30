@@ -1026,7 +1026,12 @@ namespace WindowsFormsApp2
             if (ConAnual.Checked)
             {
                 cuota = cuota + " y Saldo Anual";
+
+                Console.WriteLine("------>",cuota);
             }
+
+            
+
 
             switch (planta)
             {
