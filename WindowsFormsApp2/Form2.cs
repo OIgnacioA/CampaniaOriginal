@@ -995,7 +995,10 @@ namespace WindowsFormsApp2
             porcentaje = line.Substring(192, 2).TrimEnd(' ');
             anio = line.Substring(194, 4).TrimEnd(' ');
             cuota = line.Substring(198, 2).TrimEnd(' ');
-            fechaVencimiento = Convert.ToDateTime(line.Substring(200, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");
+
+           try
+            {fechaVencimiento = Convert.ToDateTime(line.Substring(200, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");}catch (Exception e){ }
+
             fechaVencimientoNumero = line.Substring(200, 10).TrimEnd(' ');
             montoCuota = line.Substring(210, 17).Trim(' ');
             montoAnual = line.Substring(227, 17).Trim(' ');
