@@ -61,7 +61,7 @@ namespace WindowsFormsApp2
 
         int contzip = 0;
         
-
+        //MessageBox.Show("procesar!!!!!!!!!!!!!!!!!!!!");
 
 
 
@@ -119,6 +119,8 @@ namespace WindowsFormsApp2
 
         private void procesar()
         {
+            
+             
             int cantidadAleer = Convert.ToInt32(this.txtCantidad.Text);
             this.barraGenerados.Maximum = cantidadAleer;
             this.barraLeidos.Maximum = cantidadAleer;
@@ -870,14 +872,18 @@ namespace WindowsFormsApp2
 
             directorioDestino += "Destino2022";
         }
+
+
         private void LeerLinea(string line)
         {
 
 
-            
-
             switch (this.Impuesto.SelectedIndex)
-            {
+            {     
+                
+               
+
+
                 case 0:
                 case 1:
                     {
@@ -914,7 +920,7 @@ namespace WindowsFormsApp2
                         
                         }
 
-                        Console.WriteLine("Cuit: " + cuit + ": en linea: " + counter.ToString());
+                       // Console.WriteLine("Cuit: " + cuit + ": en linea: " + counter.ToString());
 
 
                         porcentaje = "20";
@@ -971,6 +977,7 @@ namespace WindowsFormsApp2
                         //debitoCredito = line.Substring(348, 1).Trim(' ');
                         //buenContribuyente = line.Substring(349, 1).Trim(' ');
                         //cuit = objeto;
+                         
                         this.LeerLineaNuevo(line);
                         break;
                     }
@@ -986,7 +993,9 @@ namespace WindowsFormsApp2
 
 
         private void LeerLineaNuevo(string line)
-        {            
+        {         
+            
+          
             mail = line.Substring(0, 120).TrimEnd(' ').ToLower();
             objeto = line.Substring(120, 11).TrimEnd(' ');
             objetoFormateado = this.formatearObjeto(objeto);
@@ -997,7 +1006,7 @@ namespace WindowsFormsApp2
             cuota = line.Substring(198, 2).TrimEnd(' ');
 
            try
-            {fechaVencimiento = Convert.ToDateTime(line.Substring(200, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");}catch (Exception e){ }
+            {fechaVencimiento = Convert.ToDateTime(line.Substring(200, 10).TrimEnd(' ')).ToLongDateString().Replace(",", "");}catch (Exception e){ conterror++;}
 
             fechaVencimientoNumero = line.Substring(200, 10).TrimEnd(' ');
             montoCuota = line.Substring(210, 17).Trim(' ');
@@ -1022,19 +1031,18 @@ namespace WindowsFormsApp2
 
             Console.WriteLine("Cuit: " + cuit + ": en linea: " + counter.ToString());
 
-
-
+          
 
             //Le pongo si es con anual o no.
             if (ConAnual.Checked)
             {
+                
                 cuota = cuota + " y Saldo Anual";
 
-                Console.WriteLine("------>",cuota);
+             
             }
-
-            
-
+             
+    
 
             switch (planta)
             {
